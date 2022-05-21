@@ -1,15 +1,23 @@
 package me.fourteendoggo.xkingdoms.storage;
 
-import me.fourteendoggo.xkingdoms.home.Home;
+import com.zaxxer.hikari.HikariDataSource;
+import me.fourteendoggo.xkingdoms.Xkingdoms;
+import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 
-import java.util.Set;
 import java.util.UUID;
 
-public interface Storage<T> {
+public interface Storage {
 
-    T loadHomes(UUID owner);
+    void connect();
 
-    T createHome(Home home);
+    void disconnect();
 
-    T saveHomes(Set<Home> homes);
+    HikariDataSource initDataSource(Xkingdoms plugin);
+
+    KingdomPlayer createPlayer(UUID id);
+
+    KingdomPlayer loadPlayer(UUID id);
+
+    void updatePlayer(KingdomPlayer player);
+
 }
