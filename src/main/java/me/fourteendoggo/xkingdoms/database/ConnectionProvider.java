@@ -1,4 +1,4 @@
-package me.fourteendoggo.xkingdoms.storage;
+package me.fourteendoggo.xkingdoms.database;
 
 import com.zaxxer.hikari.HikariDataSource;
 import me.fourteendoggo.xkingdoms.Xkingdoms;
@@ -6,27 +6,36 @@ import me.fourteendoggo.xkingdoms.Xkingdoms;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class ConnectionFactory {
+public class ConnectionProvider {
     private final HikariDataSource dataSource;
     private final StorageType type;
 
-    public ConnectionFactory(Xkingdoms plugin) {
+    public ConnectionProvider(Xkingdoms plugin) {
         String type = plugin.getConfig().getString("database.type");
         this.type = StorageType.fromString(type, StorageType.H2);
         this.dataSource = this.type.getDataSource(plugin);
     }
 
     public Connection getConnection() throws SQLException {
-        return this.dataSource.getConnection();
+        return dataSource.getConnection();
     }
 
     public StorageType getType() {
-        return this.type;
+        return type;
     }
 
     public void close() {
-        if (this.dataSource != null && !this.dataSource.isClosed()) {
-            this.dataSource.close();
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
         }
+    }
+
+    public boolean testConnection() {
+        try (Connection conn = getConnection()) {
+            return conn.isValid(2);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

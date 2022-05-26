@@ -10,6 +10,6 @@ public enum LangKey {
     }
 
     public String getPath() {
-        return this.path;
+        return path;
     }
 }

@@ -17,11 +17,11 @@ public class Lang {
         this.config = YamlConfiguration.loadConfiguration(file);
         this.config.options().copyDefaults(true);
 
-        plugin.getLogger().info("Language file loaded, using defaults as fallback.");
+        plugin.getLogger().info("Messages loaded, using plugins defaults as fallback.");
     }
 
     public String get(LangKey key) {
-        return this.config.getString(key.getPath());
+        return config.getString(key.getPath());
     }
 
     public String get(LangKey key, String... placeholders) {

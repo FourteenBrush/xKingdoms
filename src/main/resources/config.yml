@@ -1,2 +1,7 @@
-lang:
-  join: welcome to the server
+database:
+  host: localhost
+  port: 3306
+  name: minecraft
+  user: mc
+  password: p@ssword
+  max-connections: 8
