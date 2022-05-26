@@ -1,27 +1,38 @@
 package me.fourteendoggo.xkingdoms.database;
 
 import com.zaxxer.hikari.HikariDataSource;
-import me.fourteendoggo.xkingdoms.Xkingdoms;
+import me.fourteendoggo.xkingdoms.XKingdoms;
+import me.fourteendoggo.xkingdoms.database.impl.H2Database;
+
+import java.util.function.Function;
 
 public enum StorageType {
-    H2("H2 database in embedded mode", new H2DataSourceSupplier()),
-    MYSQL("MySQL database", new MySQLDataSourceSupplier());
+    H2("H2 database in embedded mode", new H2DataSourceSupplier(), H2Database::new),
+    MYSQL("MySQL database", new MySQLDataSourceSupplier(), null);
 
     private final String description;
-    private final DataSourceSupplier dataSourceSupplier;
+    private final Function<XKingdoms, HikariDataSource> dataSourceFunction;
+    private final Function<ConnectionProvider, Database> databaseFunction;
 
-    StorageType(String description, DataSourceSupplier dataSourceSupplier) {
+    StorageType(String description,
+                Function<XKingdoms, HikariDataSource> dataSourceFunction,
+                Function<ConnectionProvider, Database> databaseFunction) {
         this.description = description;
-        this.dataSourceSupplier = dataSourceSupplier;
+        this.dataSourceFunction = dataSourceFunction;
+        this.databaseFunction = databaseFunction;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public HikariDataSource getDataSource(Xkingdoms plugin) {
-        HikariDataSource dataSource = dataSourceSupplier.get(plugin);
+    public HikariDataSource getDataSource(XKingdoms plugin) {
+        HikariDataSource dataSource = dataSourceFunction.apply(plugin);
         return applyCommonStuff(plugin, dataSource);
+    }
+
+    public Database getDatabase(ConnectionProvider connProvider) {
+        return databaseFunction.apply(connProvider);
     }
 
     public static StorageType fromString(String str, StorageType def) {
@@ -33,7 +44,7 @@ public enum StorageType {
         return def;
     }
 
-    private static HikariDataSource applyCommonStuff(Xkingdoms plugin, HikariDataSource dataSource) {
+    private static HikariDataSource applyCommonStuff(XKingdoms plugin, HikariDataSource dataSource) {
         dataSource.setMaximumPoolSize(plugin.getConfig().getInt("database.max-connections", 8));
         dataSource.setPoolName("[" + plugin.getName() + " - database]");
         dataSource.setConnectionTestQuery("SELECT 1");
@@ -44,16 +55,10 @@ public enum StorageType {
         return dataSource;
     }
 
-    @FunctionalInterface
-    private interface DataSourceSupplier {
-
-        HikariDataSource get(Xkingdoms plugin);
-    }
-
-    private static class H2DataSourceSupplier implements DataSourceSupplier {
+    private static class H2DataSourceSupplier implements Function<XKingdoms, HikariDataSource> {
 
         @Override
-        public HikariDataSource get(Xkingdoms plugin) {
+        public HikariDataSource apply(XKingdoms plugin) {
             HikariDataSource dataSource = new HikariDataSource();
             dataSource.setJdbcUrl("jdbc:h2:file:" + plugin.getDataFolder().toPath().toAbsolutePath().resolve("database"));
             dataSource.setDriverClassName("org.h2.Driver");
@@ -61,10 +66,10 @@ public enum StorageType {
         }
     }
 
-    private static class MySQLDataSourceSupplier implements DataSourceSupplier {
+    private static class MySQLDataSourceSupplier implements Function<XKingdoms, HikariDataSource> {
 
         @Override
-        public HikariDataSource get(Xkingdoms plugin) {
+        public HikariDataSource apply(XKingdoms plugin) {
             HikariDataSource dataSource = new HikariDataSource();
             String address = plugin.getConfig().getString("database.host", "localhost");
             int port = plugin.getConfig().getInt("database.port", 3306);
