@@ -45,7 +45,7 @@ public enum StorageType {
     }
 
     private static HikariDataSource applyCommonStuff(XKingdoms plugin, HikariDataSource dataSource) {
-        dataSource.setMaximumPoolSize(plugin.getConfig().getInt("database.max-connections", 8));
+        dataSource.setMaximumPoolSize(plugin.getConfig().getInt("database.max-connections", 7));
         dataSource.setPoolName("[" + plugin.getName() + " - database]");
         dataSource.setConnectionTestQuery("SELECT 1");
         dataSource.addDataSourceProperty("useSSL", false);
