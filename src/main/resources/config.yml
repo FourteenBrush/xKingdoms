@@ -2,6 +2,6 @@ database:
   host: localhost
   port: 3306
   name: minecraft
-  user: mc
+  username: mc
   password: p@ssword
   max-connections: 8
