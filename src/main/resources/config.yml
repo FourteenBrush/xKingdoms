@@ -1,7 +1,11 @@
+# Certain values will be ignored if not applicable for the type
 database:
+  type: H2
   host: localhost
   port: 3306
   name: minecraft
   username: mc
   password: p@ssword
   max-connections: 8
+default: true
+# this should be placed into the config

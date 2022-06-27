@@ -10,9 +10,14 @@ public class KingdomPlayer {
     public KingdomPlayer(UUID uuid, PlayerData data) {
         this.uuid = uuid;
         this.playerdata = new AtomicReference<>(data);
+        Double.NaN
     }
 
-    public UUID getId() {
+    public UUID getUniqueId() {
         return uuid;
+    }
+
+    public PlayerData getData() {
+        return playerdata.get();
     }
 }

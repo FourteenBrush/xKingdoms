@@ -1,2 +1,2 @@
-# let's try to keep the comments
-test: test
+# if any value isn't set, the default values from within the jar will be used
+no-permission: '&cYou are not authorized to do that!'

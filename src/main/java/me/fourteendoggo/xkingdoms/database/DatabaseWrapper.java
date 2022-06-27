@@ -2,7 +2,6 @@ package me.fourteendoggo.xkingdoms.database;
 
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -22,7 +21,7 @@ public class DatabaseWrapper {
             database.connect();
             return true;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Tried to connect to the database but failed.", e);
+            logger.log(Level.SEVERE, "Failed to connect to the database", e);
         }
         return false;
     }
@@ -31,17 +30,15 @@ public class DatabaseWrapper {
         try {
             database.disconnect();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Tried to close the database but failed.", e);
+            logger.log(Level.SEVERE, "Failed to close database connection", e);
         }
     }
 
-    CompletableFuture<KingdomPlayer> loadPlayer(UUID id) {
-        return makeFuture(() -> database.loadPlayer(id), "Failed to load player with uuid %s".formatted(id));
+    public CompletableFuture<Void> savePlayer(KingdomPlayer player) {
+        return makeFuture(() -> database.savePlayer(player), "Failed to save player with uuid %s".formatted(player.getUniqueId()));
     }
 
-    CompletableFuture<Void> savePlayer(KingdomPlayer player) {
-        return makeFuture(() -> database.savePlayer(player), "Failed to save player with uuid %s".formatted(player.getId()));
-    }
+    /* when things go wrong, only messaging the player is required, exception is handled here */
 
     private <T> CompletableFuture<T> makeFuture(Supplier<T> supplier, String errorMessage) {
         return CompletableFuture.supplyAsync(() -> {
