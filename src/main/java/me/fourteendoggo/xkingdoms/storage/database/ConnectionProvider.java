@@ -1,4 +1,4 @@
-package me.fourteendoggo.xkingdoms.database;
+package me.fourteendoggo.xkingdoms.storage.database;
 
 import com.zaxxer.hikari.HikariDataSource;
 

@@ -1,8 +1,8 @@
-package me.fourteendoggo.xkingdoms.database;
+package me.fourteendoggo.xkingdoms.storage.database;
 
 import com.zaxxer.hikari.HikariDataSource;
 import me.fourteendoggo.xkingdoms.XKingdoms;
-import me.fourteendoggo.xkingdoms.database.impl.H2Database;
+import me.fourteendoggo.xkingdoms.storage.database.impl.H2Database;
 
 import java.util.function.Function;
 

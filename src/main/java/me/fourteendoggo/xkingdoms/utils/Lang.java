@@ -22,6 +22,7 @@ public class Lang {
         @SuppressWarnings("ConstantConditions")
         Reader defaultConfigStream = new InputStreamReader(plugin.getResource("lang.yml"), StandardCharsets.UTF_8);
         YamlConfiguration defaults = YamlConfiguration.loadConfiguration(defaultConfigStream);
+
         this.config.setDefaults(defaults);
         this.config.options().copyDefaults(true);
 

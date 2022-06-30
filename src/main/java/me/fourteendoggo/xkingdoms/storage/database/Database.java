@@ -1,4 +1,4 @@
-package me.fourteendoggo.xkingdoms.database;
+package me.fourteendoggo.xkingdoms.storage.database;
 
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 
@@ -10,7 +10,7 @@ public interface Database {
 
     void disconnect();
 
-   KingdomPlayer loadPlayer(UUID id);
+   KingdomPlayer loadUser(UUID id);
 
-   void savePlayer(KingdomPlayer player);
+   void saveUser(KingdomPlayer player);
 }

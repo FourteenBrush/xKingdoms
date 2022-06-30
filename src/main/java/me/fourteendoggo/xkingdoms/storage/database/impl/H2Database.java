@@ -1,8 +1,8 @@
-package me.fourteendoggo.xkingdoms.database.impl;
+package me.fourteendoggo.xkingdoms.storage.database.impl;
 
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
-import me.fourteendoggo.xkingdoms.database.ConnectionProvider;
-import me.fourteendoggo.xkingdoms.database.Database;
+import me.fourteendoggo.xkingdoms.storage.database.ConnectionProvider;
+import me.fourteendoggo.xkingdoms.storage.database.Database;
 import me.fourteendoggo.xkingdoms.player.PlayerData;
 import me.fourteendoggo.xkingdoms.utils.Home;
 import org.bukkit.Bukkit;
@@ -19,6 +19,11 @@ import java.util.UUID;
 
 public class H2Database implements Database {
     private static final @Language("SQL") String[] TABLE_SETUP = new String[]{
+            """
+            CREATE TABLE IF NOT EXISTS players (
+                uuid VARCHAR(36) PRIMARY KEY
+            );
+            """,
             """
             CREATE TABLE IF NOT EXISTS homes (
                 owner VARCHAR(36) PRIMARY KEY,
@@ -56,22 +61,30 @@ public class H2Database implements Database {
     }
 
     @Override
-    public KingdomPlayer loadPlayer(UUID id) {
+    public KingdomPlayer loadUser(UUID id) {
         return new KingdomPlayer(id, new PlayerData(loadHomes(id)));
     }
 
     @Override
-    public void savePlayer(KingdomPlayer player) {
+    public void saveUser(KingdomPlayer player) {
+        try (Connection conn = connProvider.getConnection(); PreparedStatement ps =
+                conn.prepareStatement("MERGE INTO players KEY(uuid) VALUES(?);")) {
 
+            ps.setString(1, player.getUniqueId().toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            sneakyThrow(e);
+        }
     }
 
     public Set<Home> loadHomes(UUID owner) {
         Set<Home> homes = new HashSet<>();
         try (Connection conn = connProvider.getConnection(); PreparedStatement ps =
                 conn.prepareStatement("SELECT * FROM homes WHERE owner=?;")) {
-            ps.setString(1, owner.toString());
 
+            ps.setString(1, owner.toString());
             ResultSet rs = ps.executeQuery();
+
             while (rs.next()) {
                 String name = rs.getString("name");
                 String worldName = rs.getString("location_world");
