@@ -53,18 +53,6 @@ public class DatabaseWrapper {
 
     /* when things go wrong, only messaging the player is required, exception is handled here */
 
-    private <T> CompletableFuture<T> makeFuture(Supplier<T> supplier, String errorMessage) {
-        return CompletableFuture.supplyAsync(() -> {
-            // the database impl we wrap doesn't do error handling, so catch any possible exceptions from that side
-            try {
-                return supplier.get();
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, errorMessage, e);
-                throw e;
-            }
-        });
-    }
-
     /**
      * Creates a {@link CompletableFuture} from the given supplier
      * In other words: give an asynchronous way of handling synchronous stuff

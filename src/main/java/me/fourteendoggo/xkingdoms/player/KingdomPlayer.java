@@ -20,6 +20,10 @@ public class KingdomPlayer {
         return playerdata.get();
     }
 
+    public void login() {
+
+    }
+
     public void logout() {
 
     }

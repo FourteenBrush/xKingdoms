@@ -1,10 +1,10 @@
 package me.fourteendoggo.xkingdoms.storage;
 
-public interface Repository<I, O> extends Iterable<O> {
+public interface Repository<K, V> extends Iterable<V> {
 
-    void add(I i);
+    V get(K k);
 
-    O get(I i);
+    void put(K k, V v);
 
-
+    V remove(K k);
 }

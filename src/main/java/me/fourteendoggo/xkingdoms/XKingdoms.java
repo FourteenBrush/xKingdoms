@@ -6,6 +6,7 @@ import me.fourteendoggo.xkingdoms.storage.database.DatabaseWrapper;
 import me.fourteendoggo.xkingdoms.storage.database.StorageType;
 import me.fourteendoggo.xkingdoms.listeners.PlayerListener;
 import me.fourteendoggo.xkingdoms.storage.database.ConnectionProvider;
+import me.fourteendoggo.xkingdoms.storage.repository.KingdomRepository;
 import me.fourteendoggo.xkingdoms.storage.repository.UserRepository;
 import me.fourteendoggo.xkingdoms.utils.Lang;
 import me.fourteendoggo.xkingdoms.utils.LangKey;
@@ -15,6 +16,7 @@ public class XKingdoms extends JavaPlugin {
     private Lang lang;
     private DatabaseWrapper database;
     private UserRepository userRepository;
+    private KingdomRepository kingdomRepository;
 
     @Override
     public void onEnable() {
@@ -35,7 +37,8 @@ public class XKingdoms extends JavaPlugin {
         manager.registerCommand(new HomeCommand(this));
 
         lang = new Lang(this);
-        userRepository = new UserRepository(database::loadUser);
+        userRepository = new UserRepository(this);
+        kingdomRepository = new KingdomRepository();
 
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getLogger().info(getName() + " has been enabled");
@@ -61,5 +64,9 @@ public class XKingdoms extends JavaPlugin {
 
     public UserRepository getUserRepository() {
         return userRepository;
+    }
+
+    public KingdomRepository getKingdomRepository() {
+        return kingdomRepository;
     }
 }
