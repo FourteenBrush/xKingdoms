@@ -2,6 +2,7 @@ package me.fourteendoggo.xkingdoms;
 
 import co.aikar.commands.BukkitCommandManager;
 import me.fourteendoggo.xkingdoms.commands.HomeCommand;
+import me.fourteendoggo.xkingdoms.commands.VanishCommand;
 import me.fourteendoggo.xkingdoms.storage.database.DatabaseWrapper;
 import me.fourteendoggo.xkingdoms.storage.database.StorageType;
 import me.fourteendoggo.xkingdoms.listeners.PlayerListener;
@@ -35,13 +36,14 @@ public class XKingdoms extends JavaPlugin {
 
         BukkitCommandManager manager = new BukkitCommandManager(this);
         manager.registerCommand(new HomeCommand(this));
+        manager.registerCommand(new VanishCommand(this));
 
         lang = new Lang(this);
         userRepository = new UserRepository(this);
         kingdomRepository = new KingdomRepository();
 
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-        getLogger().info(getName() + " has been enabled");
+        getLogger().info("xKingdoms has been enabled");
     }
 
     @Override

@@ -10,10 +10,10 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * A cache impl which delays the actual removal of entries
+ * A cache impl which delays the removal of entries
  * Useful in situations like where a player leaves the server for a quick re-login and instead of saving the user
  * And loading it back from the database in a short period of time, it stays in the cache for a while
- * This can be handled as a normal collection, but the ::get operation is slightly optimized for situations as mentioned above
+ * This class be handled as a normal collection, but the ::get operation is slightly optimized for situations as mentioned above
  * @param <K> the key type to store
  * @param <V> the according value type to store
  */
@@ -29,6 +29,10 @@ public class DelayedRemovalCache<K, V> {
         this.plugin = plugin;
         this.map = new HashMap<>();
         this.removals = new HashMap<>();
+    }
+
+    public boolean has(K key) {
+        return map.containsKey(key);
     }
 
     /**
@@ -49,10 +53,9 @@ public class DelayedRemovalCache<K, V> {
      */
     public void put(K key, V value) {
         // check if the entry was queried for removal and if so, undo that
-        RemoveQuery<K> query = removals.remove(key);
         // if their was a remove query, we are sure that the element is present cuz removing the element creates a query
         // otherwise its either present or not present, lets override the old element like the hashmap impl does
-        if (query == null) {
+        if (removals.remove(key) == null) {
             map.put(key, value);
         }
         // start to run the removal task if this is the first element added, waste of memory to check an empty map otherwise
@@ -97,11 +100,12 @@ public class DelayedRemovalCache<K, V> {
     private void startRemovalTask(XKingdoms plugin) {
         removalTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             Iterator<Map.Entry<K, RemoveQuery<K>>> iterator = removals.entrySet().iterator();
+            Instant now = Instant.now();
             while (iterator.hasNext()) {
                 Map.Entry<K, RemoveQuery<K>> entry = iterator.next();
                 RemoveQuery<K> query = entry.getValue();
                 // execute queries which should already be executed
-                if (query.executeTime().isBefore(Instant.now())) {
+                if (query.executeTime().isBefore(now)) {
                     query.function().accept(entry.getKey());
                     iterator.remove();
                 }

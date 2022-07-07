@@ -18,6 +18,11 @@ public class UserRepository implements Repository<UUID, KingdomPlayer> {
     }
 
     @Override
+    public boolean has(UUID uuid) {
+        return userMap.has(uuid);
+    }
+
+    @Override
     public KingdomPlayer get(UUID id) {
         return userMap.get(id);
     }

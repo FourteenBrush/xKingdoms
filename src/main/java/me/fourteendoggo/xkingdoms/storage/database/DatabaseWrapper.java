@@ -66,7 +66,7 @@ public class DatabaseWrapper {
      * @return a future which either holds the return type of the operation, or a {@link Throwable} object
      */
     private <T> CompletableFuture<T> makeFuture(Supplier<T> supplier, String logOnSuccess, String logOnFailure) {
-        return CompletableFuture.supplyAsync(supplier).whenComplete((__, throwable) -> {
+        return CompletableFuture.supplyAsync(supplier).whenComplete((t, throwable) -> {
             if (throwable != null) {
                 logger.log(Level.SEVERE, logOnFailure, throwable);
             } else {
@@ -79,7 +79,7 @@ public class DatabaseWrapper {
      * @see DatabaseWrapper#makeFuture(Supplier, String, String) but this uses a runnable
      */
     private CompletableFuture<Void> makeFuture(Runnable runnable, String logOnSuccess, String logOnFailure) {
-        return CompletableFuture.runAsync(runnable).whenComplete((__, throwable) -> {
+        return CompletableFuture.runAsync(runnable).whenComplete((v, throwable) -> {
             if (throwable != null) {
                 logger.log(Level.SEVERE, logOnFailure, throwable);
             } else {

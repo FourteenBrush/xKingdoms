@@ -1,11 +1,16 @@
-# Certain values will be ignored if not applicable for the type
+# Certain values will be ignored if not applicable for the database type
 database:
   type: H2
   host: localhost
   port: 3306
-  name: minecraft
+  name: xkingdoms
   username: mc
   password: p@ssword
   max-connections: 8
 default: true
-# this should be placed into the config
+
+vanish:
+  # apply nightvision when a player vanishes
+  apply-nightvision: true
+  # will vanished players be able to see other vanished players?
+  players-will-see-each-other: true

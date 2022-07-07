@@ -1,4 +1,5 @@
 name: xKingdoms
 version: 1.0
 author: FourteenDoggo
+api-version: 1.13
 main: me.fourteendoggo.xkingdoms.XKingdoms

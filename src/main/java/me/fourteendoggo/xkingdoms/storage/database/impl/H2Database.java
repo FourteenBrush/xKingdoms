@@ -28,7 +28,7 @@ public class H2Database implements Database {
             CREATE TABLE IF NOT EXISTS homes (
                 owner VARCHAR(36) PRIMARY KEY,
                 name VARCHAR(40) NOT NULL,
-                location_world VARCHAR(20) NOT NULL,
+                location_world VARCHAR(36) NOT NULL,
                 location_x DOUBLE PRECISION NOT NULL,
                 location_y DOUBLE PRECISION NOT NULL,
                 location_z DOUBLE PRECISION NOT NULL,
@@ -87,14 +87,15 @@ public class H2Database implements Database {
 
             while (rs.next()) {
                 String name = rs.getString("name");
-                String worldName = rs.getString("location_world");
+
+                UUID worldUUID = UUID.fromString(rs.getString("location_world"));
                 double x = rs.getDouble("location_x");
                 double y = rs.getDouble("location_y");
                 double z = rs.getDouble("location_z");
                 float yaw = rs.getFloat("location_yaw");
                 float pitch = rs.getFloat("location_pitch");
+                Location location = new Location(Bukkit.getWorld(worldUUID), x, y, z, yaw, pitch);
 
-                Location location = new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
                 homes.add(new Home(name, owner, location));
             }
         } catch (SQLException e) {

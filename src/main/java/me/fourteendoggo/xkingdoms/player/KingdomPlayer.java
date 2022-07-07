@@ -1,15 +1,20 @@
 package me.fourteendoggo.xkingdoms.player;
 
+import org.bukkit.entity.Player;
+
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class KingdomPlayer {
     private final UUID uuid;
-    private final AtomicReference<PlayerData> playerdata;
+    private Reference<Player> player;
+    private final AtomicReference<PlayerData> playerData;
 
     public KingdomPlayer(UUID uuid, PlayerData data) {
         this.uuid = uuid;
-        this.playerdata = new AtomicReference<>(data);
+        this.playerData = new AtomicReference<>(data);
     }
 
     public UUID getUniqueId() {
@@ -17,14 +22,23 @@ public class KingdomPlayer {
     }
 
     public PlayerData getData() {
-        return playerdata.get();
+        return playerData.get();
     }
 
-    public void login() {
-
+    public void login(Player bindTo) {
+        this.player = new WeakReference<>(bindTo);
     }
 
     public void logout() {
 
+        player.clear();
+    }
+
+    public Player getPlayer() {
+        return player.get();
+    }
+
+    public boolean isModerator() {
+        return getPlayer().hasPermission("xkingdoms.moderator");
     }
 }
