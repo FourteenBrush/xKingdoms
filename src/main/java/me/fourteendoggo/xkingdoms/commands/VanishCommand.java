@@ -21,6 +21,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -33,6 +34,7 @@ import java.util.UUID;
 
 @CommandAlias("vanish|v")
 @CommandPermission("xkingdoms.moderator")
+@Description("Main command for vanishing")
 public class VanishCommand extends BaseCommand implements Listener {
     private final XKingdoms plugin;
     private final Set<UUID> vanished;
@@ -114,12 +116,12 @@ public class VanishCommand extends BaseCommand implements Listener {
             sender.sendMessage(plugin.getLang(LangKey.VANISH_NOBODY_VANISHED));
         } else if (vanished.size() == 1) {
             UUID singleUUID = vanished.toArray(UUID[]::new)[0];
-            sender.sendMessage(ChatColor.GOLD + "Vanished players: " + Bukkit.getPlayer(singleUUID));
+            sender.sendMessage(ChatColor.GOLD + "Vanished players: " + Bukkit.getPlayer(singleUUID).getName());
         } else {
             // instead of sending multiple messages, do it in one
             StringBuilder builder = new StringBuilder();
             for (UUID id : vanished) {
-                if (builder.length() > 21) {
+                if (!builder.isEmpty()) {
                     builder.append(',');
                 }
                 Player player = Bukkit.getPlayer(id);
@@ -131,34 +133,13 @@ public class VanishCommand extends BaseCommand implements Listener {
     }
 
     @HelpCommand // TODO
-    private void onHelp(CommandSender sender, CommandHelp help) {
-        sender.sendMessage("""
-            &e------------ &7[&eVanish Command&7] &e------------&7
-              Below is a list of all vanish subcommands:
-              &6/vanish <player> &7- &6Vanishes the mentioned player
-              /vanish enable [player] &7- &6Vanishes the mentioned player, or yourself
-              /vanish disable [player] &7- &6Un-vanishes the mentioned player, or yourself
-              /vanish list &7- &6Shows a list of all the vanished players on the server
-              /vanish fakequit &7- &6Sends the server a fake leave message and vanishes you
-              /vanish fakejoin &7- &6Sends the server a fake join message and un-vanishes you""");
-
+    private void onHelp(CommandHelp help) {
         help.showHelp();
     }
 
     //
     // implementation
     //
-
-    /*
-    / vanish <player>           -> tabcomplete player names on args[0]
-    / vanish toggle <player>    -> same
-    / vanish enable <player>    -> tabcomplete player names on args[1]
-    / vanish disable <player>   -> tabcomplete player names on args[1]
-    / vanish status [player]    -> tabcomplete player names on args[1]
-    / vanish fakequit           -> no
-    / vanish fakejoin           -> no
-    / vanish list               -> no
-     */
 
     private boolean isVanished(Entity entity) {
         return vanished.contains(entity.getUniqueId());
@@ -196,11 +177,11 @@ public class VanishCommand extends BaseCommand implements Listener {
     }
 
     private void tryVanishOther(Player other, CommandSender executor) {
-        if (!vanished.add(other.getUniqueId())) {
+        if (vanished.add(other.getUniqueId())) {
+            vanishOtherInternal(other, executor);
+        } else {
             executor.sendMessage(plugin.getLang(LangKey.VANISH_ALREADY_VANISHED_OTHER));
-            return;
         }
-        vanishOtherInternal(other, executor);
     }
 
     private void vanishOtherInternal(Player other, CommandSender executor) {
@@ -239,6 +220,10 @@ public class VanishCommand extends BaseCommand implements Listener {
 
         bossbar.addPlayer(target);
         target.setSaturation(20f);
+
+        if (plugin.getConfig().getBoolean("send-status-message-to-self")) {
+            target.sendMessage(plugin.getLang(LangKey.QUIT_MESSAGE, target.getName()));
+        }
     }
 
     private void tryUnvanishSelf(Player self, boolean showJoinMessage) {
@@ -291,6 +276,10 @@ public class VanishCommand extends BaseCommand implements Listener {
         container.set(key, PersistentDataType.BYTE, (byte) 0);
 
         bossbar.removePlayer(target);
+
+        if (plugin.getConfig().getBoolean("send-status-message-to-self")) {
+            target.sendMessage(plugin.getLang(LangKey.JOIN_MESSAGE, target.getName()));
+        }
     }
 
     private void handleSharedStuff(Player target, boolean vanish) {
@@ -371,6 +360,13 @@ public class VanishCommand extends BaseCommand implements Listener {
             if (p == joinedPlayer || !joinedPlayer.canSee(p)) continue;
             // hide vanished players for the joining player
             joinedPlayer.hidePlayer(plugin, p);
+        }
+    }
+
+    @EventHandler
+    private void onDie(PlayerDeathEvent event) {
+        if (isVanished(event.getEntity())) {
+            ensureFlying(event.getEntity());
         }
     }
 
