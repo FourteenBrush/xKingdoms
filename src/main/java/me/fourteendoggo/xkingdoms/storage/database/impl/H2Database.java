@@ -5,11 +5,10 @@ import me.fourteendoggo.xkingdoms.storage.database.ConnectionProvider;
 import me.fourteendoggo.xkingdoms.storage.database.Database;
 import me.fourteendoggo.xkingdoms.player.PlayerData;
 import me.fourteendoggo.xkingdoms.utils.Home;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.intellij.lang.annotations.Language;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,38 +24,22 @@ public class H2Database implements Database {
             """,
             """
             CREATE TABLE IF NOT EXISTS homes (
-                owner UUID
+                id UUID PRIMARY KEY,
+                owner UUID,
                 name VARCHAR(40),
                 location_world UUID NOT NULL,
                 location_x DOUBLE PRECISION NOT NULL,
                 location_y DOUBLE PRECISION NOT NULL,
                 location_z DOUBLE PRECISION NOT NULL,
                 location_yaw FLOAT NOT NULL,
-                location_pitch FLOAT NOT NULL,
-                PRIMARY KEY (owner, name)
+                location_pitch FLOAT NOT NULL
             );"""
     };
+
     private final ConnectionProvider connProvider;
 
     public H2Database(ConnectionProvider connProvider) {
         this.connProvider = connProvider;
-    }
-
-    private void withConnection(ThrowingConsumer<Connection> consumer) {
-        try (Connection conn = connProvider.getConnection()) {
-            consumer.accept(conn);
-        } catch (SQLException e) {
-            sneakyThrow(e);
-        }
-    }
-
-    private <T> T withConnection(ThrowingFunction<Connection, T> function) {
-        try (Connection conn = connProvider.getConnection()) {
-            return function.apply(conn);
-        } catch (SQLException e) {
-            sneakyThrow(e);
-        }
-        return null;
     }
 
     @Override
@@ -77,83 +60,90 @@ public class H2Database implements Database {
         connProvider.close();
     }
 
-    @Override
-    public KingdomPlayer loadUser(UUID id) {
-        return withConnection(conn -> {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM players WHERE uuid=?;");
-            ResultSet rs = ps.executeQuery();
-            int level = 0;
-            if (rs.next()) {
-                level = rs.getInt("level");
-            }
-            List<Home> homes = fetchHomes(conn, id);
+    private void withConnection(ThrowingConsumer<Connection> consumer) {
+        try (Connection conn = connProvider.getConnection()) {
+            consumer.accept(conn);
+        } catch (SQLException e) {
+            sneakyThrow(e);
+        }
+    }
 
-            return new KingdomPlayer(id, new PlayerData(level, homes));
-        });
-
-
-
-
-
-        /*
-        try (Connection conn = connProvider.getConnection(); PreparedStatement loadUser =
-                conn.prepareStatement("SELECT * FROM players WHERE uuid=?;"); PreparedStatement loadHomes =
-                conn.prepareStatement("SELECT * FROM homes WHERE owner=?;")) {
-
-            loadUser.setString(1, id.toString());
-            ResultSet rs = loadUser.executeQuery();
-            int level = 0;
-            if (rs.next()) {
-                level = rs.getInt("level");
-            }
-
-            loadHomes.setString(1, id.toString());
-            rs = loadHomes.executeQuery();
-            Set<Home> homes = new HashSet<>();
-            while (rs.next()) {
-                homes.add(constructHome(rs, id));
-            }
-
-            return new KingdomPlayer(id, new PlayerData(level, homes));
+    private <T> T withConnection(String statement, ThrowingBiFunction<Connection, PreparedStatement, T> function, Object... placeholders) {
+        try (Connection conn = connProvider.getConnection(); PreparedStatement ps =
+             conn.prepareStatement(statement)) {
+            fillPlaceholders(ps, placeholders);
+            return function.apply(conn, ps);
         } catch (SQLException e) {
             sneakyThrow(e);
         }
         return null;
-         */
     }
 
-    private List<Home> fetchHomes(Connection conn, UUID owner) throws SQLException {
-        PreparedStatement ps = conn.prepareStatement("SELECT * FROM homes WHERE owner=?;");
-        ps.setString(1, owner.toString());
-
-        List<Home> homes = new ArrayList<>();
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            String name = rs.getString("name");
-
-            UUID worldUUID = UUID.fromString(rs.getString("location_world"));
-            double x = rs.getDouble("location_x");
-            double y = rs.getDouble("location_y");
-            double z = rs.getDouble("location_z");
-            float yaw = rs.getFloat("location_yaw");
-            float pitch = rs.getFloat("location_pitch");
-            Location location = new Location(Bukkit.getWorld(worldUUID), x, y, z, yaw, pitch);
-
-            homes.add(new Home(name, owner, location));
+    private <T> T withConnection(String statement, Connection conn,  ThrowingFunction<PreparedStatement, T> function, Object... placeholders) {
+        try (conn; PreparedStatement ps =
+              conn.prepareStatement(statement)) {
+            fillPlaceholders(ps, placeholders);
+            return function.apply(ps);
+        } catch (SQLException e) {
+            sneakyThrow(e);
         }
-        return homes;
+        return null;
+    }
+
+
+    private void withConnection(String statement, ThrowingBiConsumer<Connection, PreparedStatement> consumer, Object... placeholders) {
+        try (Connection conn = connProvider.getConnection(); PreparedStatement ps =
+             conn.prepareStatement(statement)) {
+            fillPlaceholders(ps, placeholders);
+            consumer.accept(conn, ps);
+        } catch (SQLException e) {
+            sneakyThrow(e);
+        }
+    }
+
+    private void fillPlaceholders(PreparedStatement ps, Object... placeholders) throws SQLException {
+        for (int i = 0; i < placeholders.length; i++) {
+            switch (placeholders[i]) {
+                case String s -> ps.setString(i, s);
+                case Boolean b -> ps.setBoolean(i, b);
+                case Byte b -> ps.setByte(i, b);
+                case Short s -> ps.setShort(i, s);
+                case Integer integer -> ps.setInt(i, integer);
+                case Long l -> ps.setLong(i, l);
+                case UUID u -> ps.setString(i, u.toString());
+                case Date d -> ps.setDate(i, d);
+                default -> throw new IllegalStateException("the programmer was too lazy to cover all possible outcomes");
+            }
+        }
+    }
+
+    @Override
+    public KingdomPlayer loadUser(UUID id) {
+        return withConnection("SELECT * FROM players WHERE uuid=?;", (conn, ps) -> {
+            ResultSet rs = ps.executeQuery();
+            int level = rs.next() ? rs.getInt("level") : 0;
+            List<Home> homes = fetchHomes(conn, id);
+
+            return new KingdomPlayer(id, new PlayerData(level, homes));
+        }, id);
+    }
+
+    private List<Home> fetchHomes(Connection conn, UUID owner) {
+        return withConnection("SELECT * FROM homes WHERE owner=?;", conn, ps -> {
+            ResultSet rs = ps.executeQuery();
+            List<Home> homes = new ArrayList<>();
+            while (rs.next()) {
+                homes.add(Home.fromResultSet(rs));
+            }
+            return homes;
+        }, owner);
     }
 
     @Override
     public void saveUser(KingdomPlayer player) {
-        try (Connection conn = connProvider.getConnection(); PreparedStatement ps =
-                conn.prepareStatement("MERGE INTO players KEY(uuid) VALUES(?);")) {
-
-            ps.setString(1, player.getUniqueId().toString());
+        withConnection("MERGE INTO players KEY(uuid, level) VALUES(?,?);", (conn, ps) -> {
             ps.executeUpdate();
-        } catch (SQLException e) {
-            sneakyThrow(e);
-        }
+        }, player.getUniqueId(), player.getData().getLevel());
     }
 
     @SuppressWarnings("unchecked")
@@ -169,5 +159,15 @@ public class H2Database implements Database {
     @FunctionalInterface
     private interface ThrowingFunction<T, R> {
         R apply(T t) throws SQLException;
+    }
+
+    @FunctionalInterface
+    private interface ThrowingBiConsumer<T, U> {
+        void accept(T t, U u) throws SQLException;
+    }
+
+    @FunctionalInterface
+    private interface ThrowingBiFunction<T, U, R> {
+        R apply(T t, U u) throws SQLException;
     }
 }
