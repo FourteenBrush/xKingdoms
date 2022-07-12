@@ -47,8 +47,8 @@ public class DatabaseWrapper {
 
     public CompletableFuture<Void> saveUser(KingdomPlayer player) {
         return makeFuture(() -> delegate.saveUser(player),
-                "Saved the player with uuid " + player.getUniqueId(),
-                "Failed to save the player with uuid " + player.getUniqueId());
+                "Saved the player with name " + player.getPlayer().getName(),
+                "Failed to save the player with name " + player.getPlayer().getName());
     }
 
     /* when things go wrong, only messaging the player is required, exception is handled here */
