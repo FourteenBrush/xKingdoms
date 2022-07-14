@@ -12,7 +12,7 @@ public class KingdomRepository implements Repository<String, Kingdom> {
     private final Map<String, Kingdom> kingdomMap = new HashMap<>();
 
     @Override
-    public boolean has(String name) {
+    public boolean contains(String name) {
         return kingdomMap.containsKey(name);
     }
 

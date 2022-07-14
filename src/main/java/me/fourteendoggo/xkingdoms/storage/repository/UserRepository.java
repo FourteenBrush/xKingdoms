@@ -18,8 +18,8 @@ public class UserRepository implements Repository<UUID, KingdomPlayer> {
     }
 
     @Override
-    public boolean has(UUID uuid) {
-        return userMap.has(uuid);
+    public boolean contains(UUID uuid) {
+        return userMap.contains(uuid);
     }
 
     @Override
@@ -36,10 +36,6 @@ public class UserRepository implements Repository<UUID, KingdomPlayer> {
         userMap.put(id, player);
     }
 
-    public KingdomPlayer remove(UUID id, Runnable whenRemoved) {
-        return userMap.remove(id, whenRemoved);
-    }
-
     @Override
     public KingdomPlayer remove(UUID id) {
         return userMap.remove(id);
@@ -48,6 +44,6 @@ public class UserRepository implements Repository<UUID, KingdomPlayer> {
     @NotNull
     @Override
     public Iterator<KingdomPlayer> iterator() {
-        return userMap.values().iterator();
+        return userMap.iterator();
     }
 }

@@ -46,7 +46,7 @@ public class VanishCommand extends BaseCommand implements Listener {
         this.key = new NamespacedKey(plugin, "vanished");
         this.vanished = new HashSet<>();
         bossbar = Bukkit.createBossBar("Vanished", BarColor.BLUE, BarStyle.SOLID);
-        // bossbar.setProgress(1);
+        bossbar.removeAll();
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
@@ -109,14 +109,13 @@ public class VanishCommand extends BaseCommand implements Listener {
     }
 
     @Subcommand("list")
-    //@CommandCompletion("@nothing") TODO does this return nothing by default??
     @SuppressWarnings("ConstantConditions")
     private void onListVanishedUsers(CommandSender sender) {
         if (vanished.isEmpty()) {
             sender.sendMessage(plugin.getLang(LangKey.VANISH_NOBODY_VANISHED));
         } else if (vanished.size() == 1) {
             UUID singleUUID = vanished.toArray(UUID[]::new)[0];
-            sender.sendMessage(ChatColor.GOLD + "Vanished players: " + Bukkit.getPlayer(singleUUID).getName());
+            sender.sendMessage(ChatColor.GOLD + "The only vanished player is : " + Bukkit.getPlayer(singleUUID).getName());
         } else {
             // instead of sending multiple messages, do it in one
             StringBuilder builder = new StringBuilder();
@@ -132,7 +131,7 @@ public class VanishCommand extends BaseCommand implements Listener {
         }
     }
 
-    @HelpCommand // TODO
+    @HelpCommand // TODO seems probably fine
     private void onHelp(CommandHelp help) {
         help.showHelp();
     }
@@ -190,13 +189,17 @@ public class VanishCommand extends BaseCommand implements Listener {
         other.sendMessage(plugin.getLang(LangKey.VANISH_ENABLED_BY_OTHER, executor.getName()));
     }
 
+    // TODO maybe implement byte that tells to not remove night vision effect afterwards
+    // aka player had already that effect
     /*
     Persistent data byte explained
     0: the player is not vanished, maybe we can just remove the byte too, anyways...
-    1: the player is vanished and we didn't apply nightvision
-    2: the player is vanished and we applied nightvision
+    1: the player is vanished, and we didn't apply night vision
+    2: the player is vanished, and we applied night vision, so remove it afterwards
+    3: the player is vanished and had night vision before vanishing, so do not remove if afterwards
     */
 
+    // TODO did i really forget to make vanished players be able to see e/o?????
     private void handleVanish(Player target, boolean showQuitMessage) {
         for (Player player : target.getWorld().getPlayers()) { // see onWorldChange why only the players on this world
             if (player == target || !player.canSee(target)) continue;
@@ -211,17 +214,17 @@ public class VanishCommand extends BaseCommand implements Listener {
         }
         handleSharedStuff(target, true);
         // handle the persistent stuff to know later on if they were vanished and if they got night vision by that
-        int vanishStatus = plugin.getConfig().getBoolean("vanish.apply-nightvision") ? 2 : 1;
-        if (vanishStatus == 2) {
+        int vanishStatus = plugin.getConfig().getBoolean("vanish.apply-night-vision") ? 2 : 1;
+        if (vanishStatus == 2) { // if the player already got the effect, it will be overridden
             target.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 1, false, false, false));
         }
         PersistentDataContainer container = target.getPersistentDataContainer();
         container.set(key, PersistentDataType.BYTE, (byte) vanishStatus);
 
         bossbar.addPlayer(target);
-        target.setSaturation(20f);
+        target.setSaturation(20);
 
-        if (plugin.getConfig().getBoolean("send-status-message-to-self")) {
+        if (plugin.getConfig().getBoolean("vanish.send-message-to-self")) {
             target.sendMessage(plugin.getLang(LangKey.QUIT_MESSAGE, target.getName()));
         }
     }
@@ -275,9 +278,10 @@ public class VanishCommand extends BaseCommand implements Listener {
         // no longer vanished now so set it to 0
         container.set(key, PersistentDataType.BYTE, (byte) 0);
 
+        target.setFallDistance(-1); // TODO test
         bossbar.removePlayer(target);
 
-        if (plugin.getConfig().getBoolean("send-status-message-to-self")) {
+        if (plugin.getConfig().getBoolean("vanish.send-message-to-self")) {
             target.sendMessage(plugin.getLang(LangKey.JOIN_MESSAGE, target.getName()));
         }
     }
@@ -338,7 +342,7 @@ public class VanishCommand extends BaseCommand implements Listener {
         }
     }
 
-    // TODO check if switching to spectator stops flight too
+    // TODO check if switching to spectator stops flight too | seems to work
     // switching to survival or adventure disables flight and the player starts falling while still vanished
     @EventHandler
     private void onGameModeChange(PlayerGameModeChangeEvent event) {
@@ -364,10 +368,11 @@ public class VanishCommand extends BaseCommand implements Listener {
     }
 
     @EventHandler
-    private void onDie(PlayerDeathEvent event) {
+    private void onDeath(PlayerDeathEvent event) { // not working TODO
         if (isVanished(event.getEntity())) {
             ensureFlying(event.getEntity());
         }
+        Bukkit.broadcastMessage("DEBUG: PlayerDeathEvent is thrown for player's death"); // todo remove
     }
 
     // delay a tick cuz it doesn't work otherwise :/

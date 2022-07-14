@@ -7,19 +7,13 @@ import java.sql.SQLException;
 
 public class ConnectionProvider {
     private final HikariDataSource dataSource;
-    private final StorageType type;
 
-    public ConnectionProvider(HikariDataSource dataSource, StorageType type) {
+    public ConnectionProvider(HikariDataSource dataSource) {
         this.dataSource = dataSource;
-        this.type = type;
     }
 
     public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
-    }
-
-    public StorageType getType() {
-        return type;
     }
 
     public void close() {

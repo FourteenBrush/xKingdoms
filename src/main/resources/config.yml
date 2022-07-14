@@ -1,5 +1,6 @@
-# Certain values will be ignored if not applicable for the database type
 database:
+  # Some things will be ignored if not applicable for the database type
+  # Allowed values: H2 or MySQL
   type: H2
   host: localhost
   port: 3306
@@ -10,7 +11,11 @@ database:
 default: true
 
 vanish:
-  # apply nightvision when a player vanishes
-  apply-nightvision: true
+  # apply night vision when a player vanishes
+  apply-night-vision: true
+  # do not remove night vision when unvanishing if the player already got it before vanishing
+  no-night-vision-removal: true
   # will vanished players be able to see other vanished players?
   players-will-see-each-other: true
+  # when doing a fake quit or join, send the quit or join message to yourself too?
+  send-message-to-self: true

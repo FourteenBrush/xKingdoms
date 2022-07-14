@@ -1,13 +1,13 @@
 package me.fourteendoggo.xkingdoms.utils;
 
 public enum LangKey {
-    NO_PERMISSION("no-permission"),
     JOIN_MESSAGE("join-message.normal"),
     JOIN_VANISHED("join-message.vanished"),
     QUIT_MESSAGE("quit-message.normal"),
     QUIT_VANISHED("quit-message.vanished"),
     HOME_LIMIT_REACHED("home.limit-reached"),
     HOME_ALREADY_EXISTS("home.already-exists"),
+    HOME_NO_HOMES_CREATED("home.no-homes-created"),
     HOME_CREATED("home.created"),
     VANISH_ANNOUNCE("vanish.announce-to-mods"),
     VANISH_BACK_VISIBLE_ANNOUNCE("vanish.back-visible"),

@@ -1,31 +1,31 @@
-# if any value isn't set, the default values from within the jar will be used
+# if any value isn"t set, the default values from within the jar will be used
 # to use placeholders, use %s
-no-permission: '&cYou are not authorized to do that!'
 join-message:
-  normal: '&7[&a&l+&7] &b%s &7joined the server'
-  vanished: '&7[&a&l+&7] &3%s joined vanished and silently'
+  normal: "&7[&a&l+&7] &b%s &7joined the server"
+  vanished: "&7[&a&l+&7] &3%s joined vanished and silently"
 quit-message:
-  normal: '&7[&c&l-&7] &b%s &7left the server'
-  vanished: '&7[&c&l-&7] &3%s left vanished and silently'
+  normal: "&7[&c&l-&7] &b%s &7left the server"
+  vanished: "&7[&c&l-&7] &3%s left vanished and silently"
 home:
-  limit-reached: '&cYou have reached the maximum amount of homes!'
-  already-exists: '&cYou already have a home with that name!'
-  created: '#83c916You have created a new home, %s'
+  limit-reached: "&cYou have reached the maximum amount of homes!"
+  already-exists: "&cYou already have a home with that name!"
+  no-homes-created: "&cYou haven't created any homes!"
+  created: "#83c916You have created a new home, %s"
 vanish:
-  announce-to-mods: '&e%s has vanished. Poof'
-  back-visible: '&e%s has become visible'
-  nobody-vanished: '&cThere are currently no vanished players online!'
+  announce-to-mods: "&e%s has vanished. Poof"
+  back-visible: "&e%s has become visible"
+  nobody-vanished: "&cThere are currently no vanished players online!"
   enabled:
-    for-self: '&6You have been vanished'
-    for-other: '#83c916You vanished %s'
-    by-other: '&6You have been vanished by %s'
+    for-self: "&6You have been vanished"
+    for-other: "#83c916You vanished %s"
+    by-other: "&6You have been vanished by %s"
   disabled:
-    for-self: '&6You are visible again'
-    for-other: '#83c916You un-vanished %s'
-    by-other: '&6You have been un-vanished by %s'
+    for-self: "&6You are visible again"
+    for-other: "#83c916You un-vanished %s"
+    by-other: "&6You have been un-vanished by %s"
   already-vanished:
-    self: '&cYou are already vanished!'
-    other: '&cThat player is already vanished!'
+    self: "&cYou are already vanished!"
+    other: "&cThat player is already vanished!"
   already-visible:
-    self: '&cYou are already visible!'
-    other: '&cThat player is already visible!'
+    self: "&cYou are already visible!"
+    other: "&cThat player is already visible!"

@@ -10,7 +10,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.UUID;
+import java.util.logging.Level;
 
 public class PlayerListener implements Listener {
     private final XKingdoms plugin;
@@ -24,23 +24,40 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onAsyncPreLogin(AsyncPlayerPreLoginEvent event) {
         if (event.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) return;
-        UUID id = event.getUniqueId();
+        if (userRepository.contains(event.getUniqueId())) return;
 
-        if (!userRepository.has(id)) { // block async thread
-            plugin.getDatabase().loadUser(id).thenAccept(userRepository::put).join();
+        KingdomPlayer player;
+        try {
+            player = plugin.getDatabase().loadPlayerSync(event.getUniqueId());
+            userRepository.put(player);
+        } catch (Exception e) {
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Failed to load your data, please try again in a few minutes");
+            plugin.getLogger().log(Level.SEVERE, "Failed to load the player with uuid " + event.getUniqueId());
         }
+
+        /*
+        // block async thread
+        plugin.getDatabase().loadPlayer(event.getUniqueId())
+                .thenAccept(userRepository::put)
+                .exceptionally(t -> {
+                    event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Failed to load your data, please try again in a few minutes");
+                    return null;
+                }).join();
+         */
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        userRepository.get(player.getUniqueId()).login(player);
+        KingdomPlayer kPlayer = userRepository.get(player.getUniqueId());
+        kPlayer.login(player);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        KingdomPlayer user = userRepository.remove(event.getPlayer().getUniqueId());
-        user.logout();
-        plugin.getDatabase().saveUser(user);
+        Player player = event.getPlayer();
+        KingdomPlayer kPlayer = userRepository.remove(player.getUniqueId());
+        kPlayer.logout();
+        plugin.getDatabase().savePlayer(kPlayer);
     }
 }

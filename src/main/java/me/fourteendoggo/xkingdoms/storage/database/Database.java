@@ -10,7 +10,7 @@ public interface Database {
 
     void disconnect();
 
-   KingdomPlayer loadUser(UUID id);
+   KingdomPlayer loadPlayer(UUID id);
 
-   void saveUser(KingdomPlayer player);
+   void savePlayer(KingdomPlayer player);
 }

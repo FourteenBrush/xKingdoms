@@ -37,25 +37,29 @@ public class DatabaseWrapper {
         }
     }
 
+    public KingdomPlayer loadPlayerSync(UUID id) {
+        return delegate.loadPlayer(id);
+    }
+
     /* asynchronous operations */
 
-    public CompletableFuture<KingdomPlayer> loadUser(UUID id) {
-        return makeFuture(() -> delegate.loadUser(id),
+    public CompletableFuture<KingdomPlayer> loadPlayer(UUID id) {
+        return makeFuture(() -> delegate.loadPlayer(id),
                 "Loaded the player with uuid " + id,
                 "Failed to load the player with uuid " + id);
     }
 
-    public CompletableFuture<Void> saveUser(KingdomPlayer player) {
-        return makeFuture(() -> delegate.saveUser(player),
-                "Saved the player with name " + player.getPlayer().getName(),
-                "Failed to save the player with name " + player.getPlayer().getName());
+    public CompletableFuture<Void> savePlayer(KingdomPlayer player) {
+        return makeFuture(() -> delegate.savePlayer(player),
+                "Saved player " + player.getPlayer().getName(),
+                "Failed to save player " + player.getPlayer().getName());
     }
 
     /* when things go wrong, only messaging the player is required, exception is handled here */
 
     /**
      * Creates a {@link CompletableFuture} from the given supplier
-     * In other words: give an asynchronous way of handling synchronous stuff
+     * In other words: provide an asynchronous way of handling synchronous stuff
      * The database implementation we wrap doesn't do exception handling, we delegate it to the completable future
      * So this will handle possible exceptions that will occur and put them in the future object
      *

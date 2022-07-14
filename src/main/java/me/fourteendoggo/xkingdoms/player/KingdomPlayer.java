@@ -30,8 +30,6 @@ public class KingdomPlayer {
     }
 
     public void logout() {
-
-        player.clear();
     }
 
     public Player getPlayer() {

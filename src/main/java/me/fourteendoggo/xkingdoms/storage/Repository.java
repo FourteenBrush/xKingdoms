@@ -2,7 +2,7 @@ package me.fourteendoggo.xkingdoms.storage;
 
 public interface Repository<K, V> extends Iterable<V> {
 
-    boolean has(K k);
+    boolean contains(K k);
 
     V get(K k);
 

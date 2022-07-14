@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("ConstantConditions")
 public class Lang {
-    private static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F0-9]{6}");
+    private static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F\\d]{6}");
     private final FileConfiguration config;
 
     public Lang(XKingdoms plugin) {
