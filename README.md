@@ -9,4 +9,6 @@ Current features:
 - Vanish command for moderators
 - ...
 
-This is still under development and will be edited whenever i added a new feature
+This is still under development and will be edited whenever i add some new features
+
+![some image](2021-04-09_17.53.57.png)
