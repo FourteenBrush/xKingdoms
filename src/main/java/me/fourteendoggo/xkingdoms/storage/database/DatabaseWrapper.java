@@ -1,6 +1,7 @@
 package me.fourteendoggo.xkingdoms.storage.database;
 
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -37,8 +38,16 @@ public class DatabaseWrapper {
         }
     }
 
+    @Nullable
     public KingdomPlayer loadPlayerSync(UUID id) {
-        return delegate.loadPlayer(id);
+        try {
+            KingdomPlayer player = delegate.loadPlayer(id);
+            logger.info("Loaded the player with uuid " + id);
+            return player;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to load the player with uuid " + id, e);
+        }
+        return null;
     }
 
     /* asynchronous operations */

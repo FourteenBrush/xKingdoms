@@ -8,8 +8,7 @@ import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.player.PlayerData;
 import me.fourteendoggo.xkingdoms.utils.Home;
-import me.fourteendoggo.xkingdoms.utils.LangKey;
-import me.fourteendoggo.xkingdoms.utils.Permissions;
+import me.fourteendoggo.xkingdoms.lang.LangKey;
 import me.fourteendoggo.xkingdoms.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -24,7 +23,7 @@ public class HomeCommand extends BaseCommand {
     @CommandAlias("sethome")
     @Description("Creates a home at your current location")
     private void onSetHome(Player player, String name) {
-        int homesLimit = player.hasPermission(Permissions.MODERATOR) ? 5 : 2;
+        int homesLimit = player.hasPermission(Utils.MODERATOR_PERMISSION_STRING) ? 5 : 2;
         KingdomPlayer kPlayer = plugin.getUserRepository().get(player.getUniqueId());
         PlayerData data = kPlayer.getData();
 

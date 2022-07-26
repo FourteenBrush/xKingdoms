@@ -3,15 +3,15 @@ package me.fourteendoggo.xkingdoms;
 import co.aikar.commands.BukkitCommandManager;
 import me.fourteendoggo.xkingdoms.commands.HomeCommand;
 import me.fourteendoggo.xkingdoms.commands.VanishCommand;
+import me.fourteendoggo.xkingdoms.lang.Lang;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.storage.database.DatabaseWrapper;
 import me.fourteendoggo.xkingdoms.storage.database.StorageType;
-import me.fourteendoggo.xkingdoms.listeners.PlayerListener;
+import me.fourteendoggo.xkingdoms.listeners.DataListener;
 import me.fourteendoggo.xkingdoms.storage.database.ConnectionProvider;
 import me.fourteendoggo.xkingdoms.storage.repository.KingdomRepository;
 import me.fourteendoggo.xkingdoms.storage.repository.UserRepository;
-import me.fourteendoggo.xkingdoms.utils.Lang;
-import me.fourteendoggo.xkingdoms.utils.LangKey;
+import me.fourteendoggo.xkingdoms.lang.LangKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class XKingdoms extends JavaPlugin {
@@ -51,7 +51,7 @@ public class XKingdoms extends JavaPlugin {
             return kPlayer.getData().getHomes().keySet();
         });
 
-        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new DataListener(this), this);
 
         getLogger().info("xKingdoms has been enabled");
     }
@@ -67,12 +67,12 @@ public class XKingdoms extends JavaPlugin {
         getLogger().info(getName() + " has been disabled");
     }
 
-    public String getLang(LangKey key, String... placeholders) {
-        return lang.get(key, placeholders);
+    public String getLang(LangKey key) {
+        return lang.getMessage(key);
     }
 
-    public String getLang(LangKey key) {
-        return lang.get(key);
+    public String getLang(LangKey key, String... placeholders) {
+        return lang.getMessage(key, placeholders);
     }
 
     public DatabaseWrapper getDatabase() {

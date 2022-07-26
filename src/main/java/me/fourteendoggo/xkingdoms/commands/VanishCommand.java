@@ -3,9 +3,8 @@ package me.fourteendoggo.xkingdoms.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
-import jdk.jfr.Description;
 import me.fourteendoggo.xkingdoms.XKingdoms;
-import me.fourteendoggo.xkingdoms.utils.LangKey;
+import me.fourteendoggo.xkingdoms.lang.LangKey;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -296,6 +295,7 @@ public class VanishCommand extends BaseCommand implements Listener {
 
     //
     // listeners
+    // I don't want to share collections and stuff either via di or getters
     //
 
     @EventHandler

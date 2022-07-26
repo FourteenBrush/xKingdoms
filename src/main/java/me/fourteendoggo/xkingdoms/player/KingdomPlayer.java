@@ -35,8 +35,4 @@ public class KingdomPlayer {
     public Player getPlayer() {
         return player.get();
     }
-
-    public boolean isModerator() {
-        return getPlayer().hasPermission("xkingdoms.moderator");
-    }
 }

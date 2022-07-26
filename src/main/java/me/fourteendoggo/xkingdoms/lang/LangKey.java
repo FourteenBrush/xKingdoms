@@ -1,4 +1,4 @@
-package me.fourteendoggo.xkingdoms.utils;
+package me.fourteendoggo.xkingdoms.lang;
 
 public enum LangKey {
     JOIN_MESSAGE("join-message.normal"),
