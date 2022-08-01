@@ -4,38 +4,26 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 public class SkillData {
-    private final Map<SkillType, SkillRecord> skillsMap = new IdentityHashMap<>();
+    // TODO make this a HashMap<Skill, SkillProgress>
+    private final Map<SkillType, SkillProgress> skillsMap = new IdentityHashMap<>();
 
     public int getLevel(SkillType skill) {
-        SkillRecord data = skillsMap.get(skill);
-        return data != null ? data.level() : -1;
+        SkillProgress progress = skillsMap.get(skill);
+        return progress != null ? progress.getLevel() : -1;
     }
 
     public int getCurrentXP(SkillType skill) {
-        SkillRecord data = skillsMap.get(skill);
-        return data != null ? data.currentXP() : -1;
+        SkillProgress progress = skillsMap.get(skill);
+        return progress != null ? progress.getXp() : -1;
     }
 
     public void incrementXP(SkillType skill, int amount) {
-        SkillRecord data = skillsMap.computeIfAbsent(skill, s -> new SkillRecord(0, 0));
-
+        SkillProgress progress = skillsMap.computeIfAbsent(skill, s -> new SkillProgress());
+        progress.setXp(progress.getXp() + amount);
     }
 
-    private record SkillRecord(int currentXP, int level) {}
-
-    private static class SkillSnapshot {
-        private int level;
-        private int currentXP;
-
-        public SkillSnapshot() {
-            this(0, 0);
-        }
-
-        public SkillSnapshot(int level, int currentXP) {
-            this.level = level;
-            this.currentXP = currentXP;
-        }
-
-        public
+    public void incrementLevel(SkillType skill, int amount) {
+        SkillProgress progress = skillsMap.computeIfAbsent(skill, s -> new SkillProgress());
+        progress.setLevel(progress.getLevel() + amount);
     }
 }
