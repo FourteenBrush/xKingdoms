@@ -61,15 +61,12 @@ public class HomeCommand extends BaseCommand {
         }
         StringBuilder builder = new StringBuilder();
         builder.append("&e------------ &7[&eHomes&7] &e------------\n&7Below is a list of all your homes:");
-        data.getHomes().forEach((name, home) -> {
-            String formatted = "\\n&6  %s: [x: %s, y: %s, z: %s]".formatted(
-                    name,
-                    home.location().getBlockX(),
-                    home.location().getBlockY(),
-                    home.location().getBlockZ()
-            );
-            builder.append(formatted);
-        });
+        data.getHomes().values().forEach(home -> builder.append("\n&6  %s: [x: %s, y: %s, z: %s]".formatted(
+                home.name(),
+                home.location().getBlockX(),
+                home.location().getBlockY(),
+                home.location().getBlockZ()
+        )));
         player.sendMessage(Utils.colorize(builder.toString()));
     }
 }

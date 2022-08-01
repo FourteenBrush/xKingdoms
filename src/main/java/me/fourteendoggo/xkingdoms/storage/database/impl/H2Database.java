@@ -28,12 +28,12 @@ public class H2Database implements Database {
                 id UUID PRIMARY KEY,
                 owner UUID,
                 name VARCHAR(40),
-                location_world UUID NOT NULL,
-                location_x DOUBLE PRECISION NOT NULL,
-                location_y DOUBLE PRECISION NOT NULL,
-                location_z DOUBLE PRECISION NOT NULL,
-                location_yaw FLOAT NOT NULL,
-                location_pitch FLOAT NOT NULL
+                world UUID NOT NULL,
+                x DOUBLE PRECISION NOT NULL,
+                y DOUBLE PRECISION NOT NULL,
+                z DOUBLE PRECISION NOT NULL,
+                yaw FLOAT NOT NULL,
+                pitch FLOAT NOT NULL
             );"""
     };
 
@@ -61,7 +61,7 @@ public class H2Database implements Database {
         connProvider.close();
     }
 
-    private <T> T withConnection(String statement, ThrowingBiFunction<Connection, PreparedStatement, T> function, Object... placeholders) {
+    private <T> T withConnection(@Language("SQL") String statement, ThrowingBiFunction<Connection, PreparedStatement, T> function, Object... placeholders) {
         try (Connection conn = connProvider.getConnection(); PreparedStatement ps =
              conn.prepareStatement(statement)) {
             fillPlaceholders(ps, placeholders);
@@ -72,7 +72,7 @@ public class H2Database implements Database {
         return null;
     }
 
-    private void withConnection(String statement, ThrowingBiConsumer<Connection, PreparedStatement> consumer, Object... placeholders) {
+    private void withConnection(@Language("SQL") String statement, ThrowingBiConsumer<Connection, PreparedStatement> consumer, Object... placeholders) {
         try (Connection conn = connProvider.getConnection(); PreparedStatement ps =
              conn.prepareStatement(statement)) {
             fillPlaceholders(ps, placeholders);
@@ -85,7 +85,7 @@ public class H2Database implements Database {
     /*
     WARNING: DOES NOT CLOSE THE CONNECTION
      */
-    private <T> T withConnection(String statement, Connection conn,  ThrowingFunction<PreparedStatement, T> function, Object... placeholders) {
+    private <T> T withConnection(@Language("SQL") String statement, Connection conn,  ThrowingFunction<PreparedStatement, T> function, Object... placeholders) {
         try (PreparedStatement ps = conn.prepareStatement(statement)) {
             fillPlaceholders(ps, placeholders);
             return function.apply(ps);
@@ -95,7 +95,7 @@ public class H2Database implements Database {
         return null;
     }
 
-    private void withConnection(String statement, Connection conn, ThrowingConsumer<PreparedStatement> consumer, Object... placeholders) {
+    private void withConnection(@Language("SQL") String statement, Connection conn, ThrowingConsumer<PreparedStatement> consumer, Object... placeholders) {
         try (PreparedStatement ps = conn.prepareStatement(statement)) {
             fillPlaceholders(ps, placeholders);
             consumer.accept(ps);
@@ -121,7 +121,7 @@ public class H2Database implements Database {
         }
     }
 
-    // TODO: this seems to not return null for players that dont exist, maybe think of this more..
+    // TODO: this seems to not return null for players that don't exist, maybe think of this more..
     @Override
     public KingdomPlayer loadPlayer(UUID id) {
         return withConnection("SELECT * FROM players WHERE uuid=?;", (conn, ps) -> {
@@ -157,7 +157,7 @@ public class H2Database implements Database {
     }
 
     private void saveHomes(Connection conn, Collection<Home> homes) {
-        String sql = "INSERT INTO homes(id, owner, name, world, x, y, z, yaw, pitch) VALUES(?,?,?,?,?,?,?,?,?);";
+        @Language("SQL") String sql = "INSERT INTO homes(id, owner, name, world, x, y, z, yaw, pitch) VALUES(?,?,?,?,?,?,?,?,?);";
         withConnection(sql, conn, ps -> {
             int count = 0;
             for (Home home : homes) {

@@ -2,17 +2,19 @@ package me.fourteendoggo.xkingdoms.listeners;
 
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class DataListener implements Listener {
+public class PlayerListener implements Listener {
     private final XKingdoms plugin;
 
-    public DataListener(XKingdoms plugin) {
+    public PlayerListener(XKingdoms plugin) {
         this.plugin = plugin;
     }
 
@@ -52,5 +54,10 @@ public class DataListener implements Listener {
         KingdomPlayer kPlayer = plugin.getUserRepository().remove(player.getUniqueId());
         kPlayer.logout();
         plugin.getDatabase().savePlayer(kPlayer);
+    }
+
+    @EventHandler
+    public void onChat(AsyncPlayerChatEvent event) {
+        event.setFormat(ChatColor.GRAY + event.getFormat());
     }
 }

@@ -1,5 +1,6 @@
 # if any value isn"t set, the default values from within the jar will be used
 # to use placeholders, use %s
+reload-finished: "#83c916Successfully reloaded xKingdoms!"
 join-message:
   normal: "&7[&a&l+&7] &b%s &7joined the server"
   vanished: "&7[&a&l+&7] &3%s joined vanished and silently"

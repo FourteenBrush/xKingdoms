@@ -1,6 +1,7 @@
 package me.fourteendoggo.xkingdoms.lang;
 
 public enum LangKey {
+    RELOAD_FINISHED("reload-finished"),
     JOIN_MESSAGE("join-message.normal"),
     JOIN_VANISHED("join-message.vanished"),
     QUIT_MESSAGE("quit-message.normal"),
@@ -15,8 +16,8 @@ public enum LangKey {
     VANISH_ENABLED_FOR_OTHER("vanish.enabled.for-other"),
     VANISH_ENABLED_BY_OTHER("vanish.enabled.by-other"),
     VANISH_DISABLED("vanish.disabled.for-self"),
-    VANISH_DISABLED_FOR_OTHER("vanish.disabled-for-other"),
-    VANISH_DISABLED_BY_OTHER("vanished.disabled-by-other"),
+    VANISH_DISABLED_FOR_OTHER("vanish.disabled.for-other"),
+    VANISH_DISABLED_BY_OTHER("vanish.disabled.by-other"),
     VANISH_NOBODY_VANISHED("vanish.nobody-vanished"),
     VANISH_ALREADY_VANISHED("vanish.already-vanished.self"),
     VANISH_ALREADY_VANISHED_OTHER("vanish.already-vanished.other"),

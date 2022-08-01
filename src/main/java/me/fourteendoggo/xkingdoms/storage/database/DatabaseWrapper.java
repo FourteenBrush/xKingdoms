@@ -3,6 +3,9 @@ package me.fourteendoggo.xkingdoms.storage.database;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -38,6 +41,24 @@ public class DatabaseWrapper {
         }
     }
 
+    // TODO connection isn't available at this point, implement it
+    public void executePatches() {
+        String setup;
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("db-patch.sql")) {
+            assert is != null;
+            setup = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Failed to read the db-patch.sql file, patches were not executed", e);
+            return;
+        }
+
+        String[] queries = setup.split(";");
+        for (String query : queries) {
+            if (query.isBlank()) continue;
+
+        }
+    }
+
     @Nullable
     public KingdomPlayer loadPlayerSync(UUID id) {
         try {
@@ -48,6 +69,14 @@ public class DatabaseWrapper {
             logger.log(Level.SEVERE, "Failed to load the player with uuid " + id, e);
         }
         return null;
+    }
+    public void savePlayerSync(KingdomPlayer player) {
+        try {
+            delegate.savePlayer(player);
+            logger.info("Saved player " + player.getPlayer().getName());
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to save player " + player.getPlayer().getName(), e);
+        }
     }
 
     /* asynchronous operations */
@@ -68,7 +97,6 @@ public class DatabaseWrapper {
 
     /**
      * Creates a {@link CompletableFuture} from the given supplier
-     * In other words: provide an asynchronous way of handling synchronous stuff
      * The database implementation we wrap doesn't do exception handling, we delegate it to the completable future
      * So this will handle possible exceptions that will occur and put them in the future object
      *

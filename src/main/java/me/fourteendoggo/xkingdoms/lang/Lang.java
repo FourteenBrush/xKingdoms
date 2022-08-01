@@ -1,23 +1,27 @@
 package me.fourteendoggo.xkingdoms.lang;
 
 import me.fourteendoggo.xkingdoms.XKingdoms;
+import me.fourteendoggo.xkingdoms.utils.Config;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Lang {
     private static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F\\d]{6}");
     private final Config config;
+    private final Logger logger;
     private final Map<String, String> cachedMessages;
 
     public Lang(XKingdoms plugin) {
         this.config = new Config(plugin, "lang.yml", true);
+        this.logger = plugin.getLogger();
         this.cachedMessages = new HashMap<>();
         fillMap();
-        plugin.getLogger().info("Loaded messages");
+        logger.info("Loaded messages");
     }
 
     public void reloadConfig() {
@@ -25,14 +29,31 @@ public class Lang {
         fillMap();
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void fillMap() {
+        boolean needsSave = false;
         for (LangKey key : LangKey.values()) {
             String path = key.getPath();
-            String message = config.getString(path);
+            String message;
+            if (config.isSet(path)) {
+                message = config.getString(path);
+            } else {
+                message = config.getDefaults().getString(path);
+                config.set(path, message);
+                needsSave = true;
+
+                logger.warning("==========");
+                logger.warning("A message was not present in the lang.yml file, replacing it...");
+                logger.warning("The default message is " + message);
+            }
             cachedMessages.put(path, colorize(message));
+        }
+        if (needsSave) {
+            config.reload();
         }
     }
 
+    // TODO MessageFormat?
     private String colorize(String input) {
         Matcher matcher = HEX_PATTERN.matcher(input);
         while (matcher.find()) {

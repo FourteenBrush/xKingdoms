@@ -1,4 +1,4 @@
-package me.fourteendoggo.xkingdoms;
+package me.fourteendoggo.xkingdoms.utils;
 
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.storage.database.DatabaseWrapper;
