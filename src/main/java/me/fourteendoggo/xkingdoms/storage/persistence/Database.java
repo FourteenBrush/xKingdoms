@@ -97,14 +97,14 @@ public abstract class Database {
         }
     }
 
-    public void executePatches(Logger logger) {
+    public boolean executePatches(Logger logger) {
         String setup;
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("db-patch.sql")) {
-            if (is == null) return;
+            if (is == null) return false;
             setup = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to read the db-patch.sql file, patches were not executed", e);
-            return;
+            return false;
         }
 
         String[] queries = setup.split(";");
@@ -115,7 +115,9 @@ public abstract class Database {
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Failed to execute query for database patch, is there an SQL syntax error?", e);
+            return false;
         }
+        return true;
     }
 
     public abstract Connection getConnection() throws SQLException;

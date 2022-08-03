@@ -24,7 +24,7 @@ public class Storage {
         try {
             persistenceHandler.connect();
             if (persistenceHandler instanceof Database database) {
-                database.executePatches(logger);
+                return database.executePatches(logger);
             }
             return true;
         } catch (Exception e) {
