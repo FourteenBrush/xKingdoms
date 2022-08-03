@@ -1,9 +1,9 @@
-package me.fourteendoggo.xkingdoms.storage.repository;
+package me.fourteendoggo.xkingdoms.storage.repository.impl;
 
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
-import me.fourteendoggo.xkingdoms.storage.Repository;
-import me.fourteendoggo.xkingdoms.storage.DelayedRemovalCache;
+import me.fourteendoggo.xkingdoms.storage.repository.Repository;
+import me.fourteendoggo.xkingdoms.storage.repository.DelayedRemovalCache;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;

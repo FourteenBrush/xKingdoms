@@ -1,4 +1,4 @@
-package me.fourteendoggo.xkingdoms.storage;
+package me.fourteendoggo.xkingdoms.storage.repository;
 
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import org.bukkit.Bukkit;

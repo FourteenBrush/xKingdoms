@@ -1,4 +1,4 @@
-package me.fourteendoggo.xkingdoms.storage;
+package me.fourteendoggo.xkingdoms.storage.repository;
 
 public interface Repository<K, V> extends Iterable<V> {
 

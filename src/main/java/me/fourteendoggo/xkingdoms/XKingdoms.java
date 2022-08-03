@@ -5,15 +5,18 @@ import me.fourteendoggo.xkingdoms.commands.HomeCommand;
 import me.fourteendoggo.xkingdoms.commands.ReloadCommand;
 import me.fourteendoggo.xkingdoms.commands.VanishCommand;
 import me.fourteendoggo.xkingdoms.lang.Lang;
+import me.fourteendoggo.xkingdoms.listeners.SkillListener;
+import me.fourteendoggo.xkingdoms.storage.persistance.PersistenceHandler;
+import me.fourteendoggo.xkingdoms.storage.persistance.Storage;
+import me.fourteendoggo.xkingdoms.storage.persistance.StorageType;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
-import me.fourteendoggo.xkingdoms.storage.database.DatabaseWrapper;
-import me.fourteendoggo.xkingdoms.storage.database.StorageType;
+import me.fourteendoggo.xkingdoms.skill.SkillsManager;
 import me.fourteendoggo.xkingdoms.listeners.PlayerListener;
-import me.fourteendoggo.xkingdoms.storage.database.ConnectionProvider;
-import me.fourteendoggo.xkingdoms.storage.repository.KingdomRepository;
-import me.fourteendoggo.xkingdoms.storage.repository.UserRepository;
+import me.fourteendoggo.xkingdoms.storage.repository.impl.KingdomRepository;
+import me.fourteendoggo.xkingdoms.storage.repository.impl.UserRepository;
 import me.fourteendoggo.xkingdoms.lang.LangKey;
 import me.fourteendoggo.xkingdoms.utils.Reloadable;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashSet;
@@ -21,25 +24,26 @@ import java.util.Set;
 
 public class XKingdoms extends JavaPlugin {
     private Lang lang;
-    private DatabaseWrapper database;
+    private Storage storage;
     private UserRepository userRepository;
     private KingdomRepository kingdomRepository;
     private Set<Reloadable> reloadableComponents;
+    private SkillsManager skillsManager;
 
     @Override
-    @SuppressWarnings({"deprecation", "ConstantConditions"})
+    @SuppressWarnings("deprecation")
     public void onEnable() {
         saveDefaultConfig();
 
-        StorageType storageType = StorageType.fromString(getConfig().getString("database.type"));
-        ConnectionProvider connProvider = new ConnectionProvider(storageType.getDataSource(this));
-        database = new DatabaseWrapper(storageType.getDatabase(connProvider), getLogger());
+        StorageType storageType = StorageType.parse(this);
+        PersistenceHandler persistenceHandler = storageType.getPersistenceHandler();
+        storage = new Storage(persistenceHandler, getLogger());
 
-        if (!database.connect()) {
+        if (!storage.connect()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-        // database.executePatches(); TODO
+        // database.executePatches(); TODO: this will be implemented in the database::connect method
         getLogger().info("Made a successful connection with a " + storageType.getDescription());
 
         lang = new Lang(this);
@@ -47,7 +51,8 @@ public class XKingdoms extends JavaPlugin {
         kingdomRepository = new KingdomRepository();
         reloadableComponents = new HashSet<>();
 
-        reloadableComponents.add(lang::reloadConfig);
+        reloadableComponents.add(lang);
+        skillsManager = new SkillsManager();
 
         BukkitCommandManager manager = new BukkitCommandManager(this);
         manager.enableUnstableAPI("help");
@@ -60,7 +65,10 @@ public class XKingdoms extends JavaPlugin {
             KingdomPlayer kPlayer = userRepository.get(context.getPlayer().getUniqueId());
             return kPlayer.getData().getHomes().keySet();
         });
-        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new PlayerListener(this), this);
+        pm.registerEvents(new SkillListener(this), this);
 
         getLogger().info("xKingdoms has been enabled");
     }
@@ -68,15 +76,15 @@ public class XKingdoms extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("Saving players to database...");
-        userRepository.forEach(database::savePlayerSync);
-        database.disconnect();
+        userRepository.forEach(storage::savePlayerSync);
+        storage.disconnect();
 
         getLogger().info(getName() + " has been disabled");
     }
 
     public void reloadAllComponents() {
-        reloadableComponents.forEach(Reloadable::reload);
         reloadConfig();
+        reloadableComponents.forEach(Reloadable::reload);
         getLogger().info("Reloaded xKingdoms");
     }
 
@@ -88,8 +96,8 @@ public class XKingdoms extends JavaPlugin {
         return lang.getMessage(key, placeholders);
     }
 
-    public DatabaseWrapper getDatabase() {
-        return database;
+    public Storage getStorage() {
+        return storage;
     }
 
     public UserRepository getUserRepository() {
@@ -98,5 +106,9 @@ public class XKingdoms extends JavaPlugin {
 
     public KingdomRepository getKingdomRepository() {
         return kingdomRepository;
+    }
+
+    public SkillsManager getSkillsManager() {
+        return skillsManager;
     }
 }

@@ -1,7 +1,7 @@
-package me.fourteendoggo.xkingdoms.storage.repository;
+package me.fourteendoggo.xkingdoms.storage.repository.impl;
 
 import me.fourteendoggo.xkingdoms.kingdom.Kingdom;
-import me.fourteendoggo.xkingdoms.storage.Repository;
+import me.fourteendoggo.xkingdoms.storage.repository.Repository;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

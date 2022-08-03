@@ -2,6 +2,7 @@ package me.fourteendoggo.xkingdoms.lang;
 
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.utils.Config;
+import me.fourteendoggo.xkingdoms.utils.Reloadable;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.HashMap;
@@ -10,7 +11,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Lang {
+public class Lang implements Reloadable {
     private static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F\\d]{6}");
     private final Config config;
     private final Logger logger;
@@ -24,7 +25,8 @@ public class Lang {
         logger.info("Loaded messages");
     }
 
-    public void reloadConfig() {
+    @Override
+    public void reload() {
         config.reload();
         fillMap();
     }

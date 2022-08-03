@@ -1,4 +1,4 @@
-package me.fourteendoggo.xkingdoms.skills;
+package me.fourteendoggo.xkingdoms.skill;
 
 public enum SkillType {
     FARMING("Farming"),
