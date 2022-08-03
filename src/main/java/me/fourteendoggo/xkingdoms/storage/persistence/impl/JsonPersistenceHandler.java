@@ -1,9 +1,9 @@
-package me.fourteendoggo.xkingdoms.storage.persistance.impl;
+package me.fourteendoggo.xkingdoms.storage.persistence.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.fourteendoggo.xkingdoms.XKingdoms;
-import me.fourteendoggo.xkingdoms.storage.persistance.PersistenceHandler;
+import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 
 import java.io.File;

@@ -1,7 +1,7 @@
 package me.fourteendoggo.xkingdoms.listeners;
 
 import me.fourteendoggo.xkingdoms.XKingdoms;
-import me.fourteendoggo.xkingdoms.storage.persistance.Storage;
+import me.fourteendoggo.xkingdoms.storage.persistence.Storage;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.storage.repository.impl.UserRepository;
 import org.bukkit.ChatColor;

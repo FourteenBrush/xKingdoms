@@ -1,4 +1,4 @@
-package me.fourteendoggo.xkingdoms.storage.persistance;
+package me.fourteendoggo.xkingdoms.storage.persistence;
 
 import com.zaxxer.hikari.HikariDataSource;
 import me.fourteendoggo.xkingdoms.XKingdoms;

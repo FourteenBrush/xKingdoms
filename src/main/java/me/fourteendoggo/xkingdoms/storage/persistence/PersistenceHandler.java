@@ -1,4 +1,4 @@
-package me.fourteendoggo.xkingdoms.storage.persistance;
+package me.fourteendoggo.xkingdoms.storage.persistence;
 
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 

@@ -1,9 +1,9 @@
-package me.fourteendoggo.xkingdoms.storage.persistance.impl;
+package me.fourteendoggo.xkingdoms.storage.persistence.impl;
 
 import com.zaxxer.hikari.HikariDataSource;
 import me.fourteendoggo.xkingdoms.XKingdoms;
-import me.fourteendoggo.xkingdoms.storage.persistance.Database;
-import me.fourteendoggo.xkingdoms.storage.persistance.PersistenceHandler;
+import me.fourteendoggo.xkingdoms.storage.persistence.Database;
+import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 

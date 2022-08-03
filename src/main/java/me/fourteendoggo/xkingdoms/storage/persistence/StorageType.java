@@ -1,9 +1,9 @@
-package me.fourteendoggo.xkingdoms.storage.persistance;
+package me.fourteendoggo.xkingdoms.storage.persistence;
 
 import me.fourteendoggo.xkingdoms.XKingdoms;
-import me.fourteendoggo.xkingdoms.storage.persistance.impl.H2PersistenceHandler;
-import me.fourteendoggo.xkingdoms.storage.persistance.impl.JsonPersistenceHandler;
-import me.fourteendoggo.xkingdoms.storage.persistance.impl.MySQLPersistenceHandler;
+import me.fourteendoggo.xkingdoms.storage.persistence.impl.H2PersistenceHandler;
+import me.fourteendoggo.xkingdoms.storage.persistence.impl.JsonPersistenceHandler;
+import me.fourteendoggo.xkingdoms.storage.persistence.impl.MySQLPersistenceHandler;
 
 import java.util.function.Function;
 
