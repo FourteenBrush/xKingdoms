@@ -1,23 +1,20 @@
 package me.fourteendoggo.xkingdoms.player;
 
 import me.fourteendoggo.xkingdoms.skill.SkillData;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class KingdomPlayer {
     private final UUID uuid;
-    private transient Reference<Player> player;
-    private transient final AtomicReference<PlayerData> playerData;
+    private final PlayerData playerData;
 
-    public KingdomPlayer(UUID uuid, PlayerData data) {
+    public KingdomPlayer(UUID uuid, PlayerData playerData) {
         this.uuid = uuid;
-        this.playerData = new AtomicReference<>(data);
+        this.playerData = playerData;
     }
 
     public UUID getUniqueId() {
@@ -25,15 +22,14 @@ public class KingdomPlayer {
     }
 
     public PlayerData getData() {
-        return playerData.get();
+        return playerData;
     }
 
     public Player getPlayer() {
-        return player.get();
+        return Bukkit.getPlayer(uuid);
     }
 
-    public void login(Player bindTo) {
-        this.player = new WeakReference<>(bindTo);
+    public void login() {
     }
 
     public void logout() {

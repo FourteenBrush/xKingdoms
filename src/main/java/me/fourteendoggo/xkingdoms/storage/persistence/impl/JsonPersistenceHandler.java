@@ -1,7 +1,6 @@
 package me.fourteendoggo.xkingdoms.storage.persistence.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayerAdapter;
 import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
@@ -13,8 +12,7 @@ import java.nio.file.Files;
 import java.util.UUID;
 
 public class JsonPersistenceHandler implements PersistenceHandler {
-    private final Gson gson = new GsonBuilder().setPrettyPrinting()
-            .registerTypeAdapter(KingdomPlayer.class, new KingdomPlayerAdapter()).create();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final XKingdoms plugin;
 
     public JsonPersistenceHandler(XKingdoms plugin) {

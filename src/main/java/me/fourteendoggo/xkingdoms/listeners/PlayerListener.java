@@ -48,8 +48,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        KingdomPlayer kPlayer = userRepository.get(player.getUniqueId());
-        kPlayer.login(player);
+        userRepository.get(player.getUniqueId()).login();
     }
 
     @EventHandler
