@@ -107,7 +107,7 @@ public class H2PersistenceHandler extends Database implements PersistenceHandler
     }
 
     private void saveHomes(Connection conn, Collection<Home> homes) {
-        @Language("SQL") String sql = "INSERT INTO homes(id, owner, name, world, x, y, z, yaw, pitch) VALUES(?,?,?,?,?,?,?,?,?);";
+        String sql = "INSERT INTO homes(id, owner, name, world, x, y, z, yaw, pitch) VALUES(?,?,?,?,?,?,?,?,?);";
         withConnection(sql, conn, ps -> {
             int count = 0;
             for (Home home : homes) {

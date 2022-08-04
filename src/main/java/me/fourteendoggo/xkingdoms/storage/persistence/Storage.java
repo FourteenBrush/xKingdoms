@@ -80,7 +80,7 @@ public class Storage {
 
     /**
      * Creates a {@link CompletableFuture} from the given supplier
-     * The database implementation we wrap doesn't do exception handling, we persistenceHandler it to the completable future
+     * The database implementation we wrap doesn't do exception handling, we delegate it to the completable future
      * So this will handle possible exceptions that will occur and put them in the future object
      *
      * @param supplier the action to perform

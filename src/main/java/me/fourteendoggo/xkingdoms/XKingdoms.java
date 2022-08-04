@@ -36,15 +36,14 @@ public class XKingdoms extends JavaPlugin {
         saveDefaultConfig();
 
         StorageType storageType = StorageType.parse(this);
-        PersistenceHandler persistenceHandler = storageType.getPersistenceHandler();
+        PersistenceHandler persistenceHandler = storageType.getPersistenceHandler(this);
         storage = new Storage(persistenceHandler, getLogger());
 
         if (!storage.connect()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-        // database.executePatches(); TODO: this will be implemented in the database::connect method
-        getLogger().info("Made a successful connection with a " + storageType.getDescription());
+        getLogger().info("Using a " + storageType.getDescription());
 
         lang = new Lang(this);
         userRepository = new UserRepository(this);

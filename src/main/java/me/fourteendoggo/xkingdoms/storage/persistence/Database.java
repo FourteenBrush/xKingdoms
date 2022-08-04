@@ -26,6 +26,30 @@ public abstract class Database {
         source.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
     }
 
+    public boolean executePatches(Logger logger) {
+        String setup;
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("db-patch.sql")) {
+            if (is == null) return false;
+            setup = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Failed to read the db-patch.sql file, patches were not executed", e);
+            return false;
+        }
+
+        String[] queries = setup.split(";");
+        try (Connection conn = getConnection()) {
+            for (String query : queries) {
+                if (query.isBlank()) continue;
+                executeRawQuery(conn, query);
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to execute query for database patch, is there an SQL syntax error?", e);
+            return false;
+        }
+        logger.info("Applied patches to the database");
+        return true;
+    }
+
     protected  <T> T withConnection(String statement, ThrowingBiFunction<Connection, PreparedStatement, T> function, Object... placeholders) {
         try (Connection conn = getConnection(); PreparedStatement ps =
                 conn.prepareStatement(statement)) {
@@ -95,29 +119,6 @@ public abstract class Database {
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.execute();
         }
-    }
-
-    public boolean executePatches(Logger logger) {
-        String setup;
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("db-patch.sql")) {
-            if (is == null) return false;
-            setup = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed to read the db-patch.sql file, patches were not executed", e);
-            return false;
-        }
-
-        String[] queries = setup.split(";");
-        try (Connection conn = getConnection()) {
-            for (String query : queries) {
-                if (query.isBlank()) continue;
-                executeRawQuery(conn, query);
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Failed to execute query for database patch, is there an SQL syntax error?", e);
-            return false;
-        }
-        return true;
     }
 
     public abstract Connection getConnection() throws SQLException;

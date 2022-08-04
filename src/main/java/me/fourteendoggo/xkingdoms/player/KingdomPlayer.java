@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class KingdomPlayer {
     private final UUID uuid;
-    private Reference<Player> player;
-    private final AtomicReference<PlayerData> playerData;
+    private transient Reference<Player> player;
+    private transient final AtomicReference<PlayerData> playerData;
 
     public KingdomPlayer(UUID uuid, PlayerData data) {
         this.uuid = uuid;
