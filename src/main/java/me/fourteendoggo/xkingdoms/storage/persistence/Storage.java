@@ -58,7 +58,7 @@ public class Storage {
             persistenceHandler.savePlayer(player);
             logger.info("Saved player " + player.getPlayer().getName());
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Failed to save player " + player.getPlayer().getName(), e);
+            logger.log(Level.SEVERE, "Failed to save player with uuid " + player.getUniqueId(), e);
         }
     }
 

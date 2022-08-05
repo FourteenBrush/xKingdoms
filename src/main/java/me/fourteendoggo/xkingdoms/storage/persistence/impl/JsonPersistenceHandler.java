@@ -4,6 +4,8 @@ import com.google.gson.*;
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
+import me.fourteendoggo.xkingdoms.utils.LocationSerializer;
+import org.bukkit.Location;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +13,8 @@ import java.nio.file.Files;
 import java.util.UUID;
 
 public class JsonPersistenceHandler implements PersistenceHandler {
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting()
+            .registerTypeAdapter(Location.class, new LocationSerializer()).create();
     private final XKingdoms plugin;
 
     public JsonPersistenceHandler(XKingdoms plugin) {
@@ -54,7 +57,7 @@ public class JsonPersistenceHandler implements PersistenceHandler {
     @Override
     public void savePlayer(KingdomPlayer player) {
         File playerFile = getPlayerDataFile(player.getUniqueId());
-        String json = gson.toJson(player, KingdomPlayer.class);
+        String json = gson.toJson(player);
         try {
             Files.writeString(playerFile.toPath(), json);
         } catch (IOException e) {
