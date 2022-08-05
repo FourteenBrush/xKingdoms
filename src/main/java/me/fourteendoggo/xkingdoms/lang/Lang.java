@@ -70,6 +70,6 @@ public class Lang implements Reloadable {
     }
 
     public String getMessage(LangKey key, String... placeholders) {
-        return getMessage(key).formatted((Object[]) placeholders); // tf java
+        return getMessage(key).formatted((Object[]) placeholders); // tf java how am I supposed to know
     }
 }

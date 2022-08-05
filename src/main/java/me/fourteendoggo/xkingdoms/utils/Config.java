@@ -6,10 +6,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 
@@ -30,8 +27,9 @@ public class Config extends YamlConfiguration implements Reloadable {
         }
         reload();
         if (copyDefaults) {
-            @SuppressWarnings("ConstantConditions")
-            Reader defaultConfigStream = new InputStreamReader(plugin.getResource(filename), StandardCharsets.UTF_8);
+            InputStream resource = plugin.getResource(filename);
+            if (resource == null) return;
+            Reader defaultConfigStream = new InputStreamReader(resource, StandardCharsets.UTF_8);
             setDefaults(YamlConfiguration.loadConfiguration(defaultConfigStream));
             options().copyDefaults(true);
         }
