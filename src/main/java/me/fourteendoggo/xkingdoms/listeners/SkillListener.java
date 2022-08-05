@@ -30,6 +30,8 @@ public class SkillListener implements Listener {
             handleXPGain(SkillType.FARMING, player);
         } else if (Tag.LOGS_THAT_BURN.isTagged(material)) {
             handleXPGain(SkillType.WOODCUTTING, player);
+        } else if (Tag.STONE_ORE_REPLACEABLES.isTagged(material)) {
+            handleXPGain(SkillType.MINING, player);
         }
     }
 

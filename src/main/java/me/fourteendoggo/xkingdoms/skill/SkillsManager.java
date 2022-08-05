@@ -1,6 +1,7 @@
 package me.fourteendoggo.xkingdoms.skill;
 
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
+import me.fourteendoggo.xkingdoms.skill.skills.FarmingSkill;
 import me.fourteendoggo.xkingdoms.skill.skills.WoodCuttingSkill;
 
 import java.util.EnumMap;
@@ -11,6 +12,7 @@ public class SkillsManager {
 
     public SkillsManager() {
         addSkill(new WoodCuttingSkill());
+        addSkill(new FarmingSkill());
     }
 
     private void addSkill(Skill skill) {
@@ -22,16 +24,19 @@ public class SkillsManager {
     }
 
     public void checkProgress(SkillType type, KingdomPlayer player) {
-        SkillData data = player.getData().getSkillData();
-        int currentLevel = data.getLevel(type);
-        if (currentLevel == -1) return;
-        int currentXP = data.getCurrentXP(type);
+        SkillData skillData = player.getData().getSkillData();
+        SkillProgress progress = skillData.getProgress(type);
+        if (progress == null) return;
 
-        int totalXPForLevel = skillsMap.get(type).getXPForLevel(currentLevel);
+        Skill skill = skillsMap.get(type);
+        int level = progress.getLevel();
+        int xp = progress.getXp();
+        int xpThatMustBeGained = skill.getXPForLevel(level);
 
-        if (currentXP >= totalXPForLevel) {
-            data.levelUp(type);
-            player.levelUp(currentLevel + 1);
+        if (xp >= xpThatMustBeGained) {
+            progress.incrementLevel();
+            progress.setXp(xp - xpThatMustBeGained);
+            player.levelUp(level + 1);
         }
     }
 }

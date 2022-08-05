@@ -2,7 +2,7 @@ package me.fourteendoggo.xkingdoms.skill;
 
 public enum SkillType {
     FARMING("Farming"),
-    WOODCUTTING("Wood cutting"),
+    WOODCUTTING("Woodcutting"),
     MINING("Mining");
 
     private final String displayName;

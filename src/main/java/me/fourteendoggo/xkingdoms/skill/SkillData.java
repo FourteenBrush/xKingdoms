@@ -16,6 +16,10 @@ public class SkillData {
         return progress != null ? progress.getXp() : -1;
     }
 
+    public SkillProgress getProgress(SkillType type) {
+        return skillsMap.get(type);
+    }
+
     public void levelUp(SkillType type) {
         SkillProgress progress = skillsMap.computeIfAbsent(type, s -> new SkillProgress());
         progress.setLevel(progress.getLevel() + 1);

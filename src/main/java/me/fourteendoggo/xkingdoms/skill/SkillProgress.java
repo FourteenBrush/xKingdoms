@@ -23,6 +23,10 @@ public class SkillProgress {
         this.level = level;
     }
 
+    public void incrementLevel() {
+        level++;
+    }
+
     public int getXp() {
         return xp;
     }

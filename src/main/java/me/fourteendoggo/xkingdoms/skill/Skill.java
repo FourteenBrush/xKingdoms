@@ -17,11 +17,8 @@ public abstract class Skill { // TODO: implement abilities
         return unlockLevel;
     }
 
-    public int getRemainingXP(SkillProgress progress) {
-        int totalXP = getXPForLevel(progress.getLevel());
-        return totalXP - progress.getXp();
-    }
-
-    // some formula probably
+    /**
+     * @return the xp which needs to be gained before going to the next level
+     */
     public abstract int getXPForLevel(int level);
 }
