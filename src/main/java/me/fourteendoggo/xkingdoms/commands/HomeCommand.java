@@ -4,6 +4,7 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.Values;
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.player.PlayerData;
@@ -38,13 +39,12 @@ public class HomeCommand extends BaseCommand {
         Home home = new Home(name, player.getUniqueId(), player.getLocation());
         data.addHome(home);
         player.sendMessage(plugin.getLang(LangKey.HOME_CREATED, name));
-        // save the homes when saving the whole user object periodically
     }
 
     @CommandAlias("delhome")
     @CommandCompletion("@homes")
     @Description("Deletes the home with the entered name")
-    private void onDeleteHome(Player player, String name) {
+    private void onDeleteHome(Player player, @Values("@homes") String name) {
         Bukkit.broadcastMessage("deleted home " + name);
     }
 

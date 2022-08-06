@@ -1,7 +1,9 @@
 package me.fourteendoggo.xkingdoms.player;
 
 import me.fourteendoggo.xkingdoms.skill.SkillData;
+import me.fourteendoggo.xkingdoms.skill.SkillType;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -35,10 +37,20 @@ public class KingdomPlayer {
     public void logout() {
     }
 
+    public void levelUpSkill(SkillType type, int reachedLevel) {
+        Player player = getPlayer();
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+        player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
+
+        player.sendMessage(ChatColor.DARK_PURPLE + "Congratulations! You reached level %s in %s".formatted(reachedLevel, type.getDisplayName()));
+    }
+
     public void levelUp(int reachedLevel) {
         Player player = getPlayer();
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
+
+        player.sendTitle("You reached level " + reachedLevel, null, 2, 20, 2);
 
         player.setLevel(reachedLevel);
     }

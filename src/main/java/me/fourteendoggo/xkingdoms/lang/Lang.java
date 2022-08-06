@@ -37,7 +37,7 @@ public class Lang implements Reloadable {
         for (LangKey key : LangKey.values()) {
             String path = key.getPath();
             String message;
-            if (config.isSet(path)) {
+            if (config.isSet(path)) { // TODO: config.get(path, null) != null?
                 message = config.getString(path);
             } else {
                 message = config.getDefaults().getString(path);
@@ -46,7 +46,6 @@ public class Lang implements Reloadable {
 
                 logger.warning("==========");
                 logger.warning("A message was not present in the lang.yml file, replacing it...");
-                logger.warning("The default message is " + message);
             }
             cachedMessages.put(path, colorize(message));
         }
