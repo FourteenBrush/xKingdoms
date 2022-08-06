@@ -19,10 +19,6 @@ public class SkillsManager {
         skillsMap.put(skill.getType(), skill);
     }
 
-    public Skill getSkill(SkillType type) {
-        return skillsMap.get(type);
-    }
-
     public void checkProgress(SkillType type, KingdomPlayer player) {
         SkillData skillData = player.getData().getSkillData();
         SkillProgress progress = skillData.getProgress(type);
@@ -30,13 +26,13 @@ public class SkillsManager {
 
         Skill skill = skillsMap.get(type);
         int level = progress.getLevel();
-        int xp = progress.getXp();
-        int xpThatMustBeGained = skill.getXPForLevel(level);
+        int xp = progress.getXp(); // the xp for this level
+        int requiredXP = skill.getXPForLevel(level);
 
-        if (xp >= xpThatMustBeGained) {
+        if (xp >= requiredXP) {
             progress.incrementLevel();
-            progress.setXp(xp - xpThatMustBeGained);
-            player.levelUp(level + 1);
+            progress.setXp(xp - requiredXP);
+            player.levelUpSkill(type, level + 1);
         }
     }
 }
