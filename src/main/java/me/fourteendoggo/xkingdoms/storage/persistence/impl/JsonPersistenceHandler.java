@@ -4,7 +4,9 @@ import com.google.gson.*;
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
-import me.fourteendoggo.xkingdoms.utils.LocationSerializer;
+import me.fourteendoggo.xkingdoms.utils.Home;
+import me.fourteendoggo.xkingdoms.storage.persistence.HomeDeserializer;
+import me.fourteendoggo.xkingdoms.storage.persistence.LocationTypeAdapter;
 import org.bukkit.Location;
 
 import java.io.File;
@@ -14,7 +16,9 @@ import java.util.UUID;
 
 public class JsonPersistenceHandler implements PersistenceHandler {
     private final Gson gson = new GsonBuilder().setPrettyPrinting()
-            .registerTypeAdapter(Location.class, new LocationSerializer()).create();
+            .registerTypeAdapter(Location.class, new LocationTypeAdapter())
+            .registerTypeAdapter(Home.class, new HomeDeserializer())
+            .create();
     private final XKingdoms plugin;
 
     public JsonPersistenceHandler(XKingdoms plugin) {
