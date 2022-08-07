@@ -18,8 +18,7 @@ public abstract class Skill { // TODO: implement abilities
     }
 
     /**
-     * Gets the required xp to level up, not the xp that needs to be gained in the level before, this is incremental
-     * @return the xp that is required to be able to go to the next level
+     * @return the amount of xp that is required to complete this level
      */
     public abstract int getXPForLevel(int level);
 }
