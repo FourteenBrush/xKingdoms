@@ -5,7 +5,7 @@ import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.lang.LangKey;
-import me.fourteendoggo.xkingdoms.utils.Utils;
+import me.fourteendoggo.xkingdoms.utils.Constants;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -205,7 +205,7 @@ public class VanishCommand extends BaseCommand implements Listener {
             if (player == target || !player.canSee(target)) continue;
             player.hidePlayer(plugin, target);
 
-            if (player.hasPermission(Utils.MODERATOR_PERMISSION_STRING)) {
+            if (player.hasPermission(Constants.MODERATOR_PERMISSION_STRING)) {
                 // send mods a vanish announce
                 player.sendMessage(plugin.getLang(LangKey.VANISH_ANNOUNCE, target.getName()));
             } else if (showQuitMessage) {
@@ -261,7 +261,7 @@ public class VanishCommand extends BaseCommand implements Listener {
             if (player == target || player.canSee(target)) continue;
             player.showPlayer(plugin, target);
 
-            if (player.hasPermission(Utils.MODERATOR_PERMISSION_STRING)) {
+            if (player.hasPermission(Constants.MODERATOR_PERMISSION_STRING)) {
                 player.sendMessage(plugin.getLang(LangKey.VANISH_BACK_VISIBLE_ANNOUNCE, target.getName()));
             } else if (showJoinMessage) {
                 player.sendMessage(plugin.getLang(LangKey.JOIN_MESSAGE, target.getName()));

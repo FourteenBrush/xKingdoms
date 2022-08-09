@@ -2,7 +2,6 @@ package me.fourteendoggo.xkingdoms.listeners;
 
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
-import me.fourteendoggo.xkingdoms.skill.SkillData;
 import me.fourteendoggo.xkingdoms.skill.SkillType;
 import me.fourteendoggo.xkingdoms.skill.SkillsManager;
 import org.bukkit.ChatColor;
@@ -46,7 +45,7 @@ public class SkillListener implements Listener {
         } else if (Tag.LOGS_THAT_BURN.isTagged(material)) {
             handleProgress(SkillType.WOODCUTTING, AXE_TYPES::contains, player, event);
         } else if (Tag.STONE_ORE_REPLACEABLES.isTagged(material)) {
-
+            //handleProgress(SkillType.MINING, PICKAXE_TYPES::contains, player, event); // TODO
         }
     }
 
@@ -61,9 +60,8 @@ public class SkillListener implements Listener {
         }
 
         KingdomPlayer kPlayer = plugin.getUserRepository().get(player.getUniqueId());
-        SkillData skillData = kPlayer.getData().getSkillData();
 
-        skillData.incrementXP(type, 1); // TODO: change this to a proper values for each material or smth
+        kPlayer.getData().incrementSkillXP(type, 1); // TODO: change this to a proper values for each material or smth
         skillsManager.handleLevelling(type, kPlayer);
     }
 }

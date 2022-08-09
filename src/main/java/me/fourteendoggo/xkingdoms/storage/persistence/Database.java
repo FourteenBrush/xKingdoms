@@ -2,6 +2,7 @@ package me.fourteendoggo.xkingdoms.storage.persistence;
 
 import com.zaxxer.hikari.HikariDataSource;
 import me.fourteendoggo.xkingdoms.XKingdoms;
+import me.fourteendoggo.xkingdoms.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,12 +12,19 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class Database {
+    protected final HikariDataSource dataSource = new HikariDataSource();
 
-    protected void applyDataSourceSettings(HikariDataSource source, XKingdoms plugin) {
+    public Database(XKingdoms plugin, Consumer<HikariDataSource> dataSourceInitializer) {
+        dataSourceInitializer.accept(dataSource);
+        applyDataSourceSettings(dataSource, plugin);
+    }
+
+    private void applyDataSourceSettings(HikariDataSource source, XKingdoms plugin) {
         source.setMaximumPoolSize(plugin.getConfig().getInt("storage.max-connections", 8));
         source.setPoolName("[" + plugin.getName() + " - database]");
         source.setConnectionTestQuery("SELECT 1");
@@ -56,7 +64,7 @@ public abstract class Database {
             fillPlaceholders(ps, placeholders);
             return function.apply(conn, ps);
         } catch (SQLException e) {
-            sneakyThrow(e);
+            Utils.sneakyThrow(e);
         }
         return null;
     }
@@ -67,7 +75,7 @@ public abstract class Database {
             fillPlaceholders(ps, placeholders);
             consumer.accept(conn, ps);
         } catch (SQLException e) {
-            sneakyThrow(e);
+            Utils.sneakyThrow(e);
         }
     }
 
@@ -79,7 +87,7 @@ public abstract class Database {
             fillPlaceholders(ps, placeholders);
             return function.apply(ps);
         } catch (SQLException e) {
-            sneakyThrow(e);
+            Utils.sneakyThrow(e);
         }
         return null;
     }
@@ -89,7 +97,7 @@ public abstract class Database {
             fillPlaceholders(ps, placeholders);
             consumer.accept(ps);
         } catch (SQLException e) {
-            sneakyThrow(e);
+            Utils.sneakyThrow(e);
         }
     }
 
@@ -110,18 +118,15 @@ public abstract class Database {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    protected  <E extends Throwable> void sneakyThrow(Throwable t) throws E {
-        throw (E) t;
-    }
-
     protected void executeRawQuery(Connection conn, String query) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.execute();
         }
     }
 
-    public abstract Connection getConnection() throws SQLException;
+    public Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
+    }
 
     @FunctionalInterface
     protected interface ThrowingConsumer<T> {

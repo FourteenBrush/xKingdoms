@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import me.fourteendoggo.xkingdoms.XKingdoms;
+import me.fourteendoggo.xkingdoms.player.PlayerData;
 import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.utils.Home;
@@ -20,6 +21,7 @@ public class JsonPersistenceHandler implements PersistenceHandler {
     private final Gson gson = new GsonBuilder().setPrettyPrinting()
             .registerTypeAdapter(Location.class, new LocationTypeAdapter())
             .registerTypeAdapter(Home.class, new HomeDeserializer())
+            .registerTypeAdapter(KingdomPlayer.class, new KingdomPlayerDeserializer())
             .create();
     private final XKingdoms plugin;
 
@@ -112,6 +114,18 @@ public class JsonPersistenceHandler implements PersistenceHandler {
             Location location = context.deserialize(obj.get("location"), Location.class);
 
             return new Home(name, owner, location);
+        }
+    }
+
+    private static class KingdomPlayerDeserializer implements JsonDeserializer<KingdomPlayer> {
+
+        @Override
+        public KingdomPlayer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject obj = (JsonObject) json;
+            UUID uuid = UUID.fromString(obj.get("uuid").getAsString());
+            PlayerData playerData = context.deserialize(obj, PlayerData.class);
+
+            return new KingdomPlayer(uuid, playerData);
         }
     }
 }

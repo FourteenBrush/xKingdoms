@@ -3,7 +3,6 @@ package me.fourteendoggo.xkingdoms.skill;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.skill.skills.FarmingSkill;
 import me.fourteendoggo.xkingdoms.skill.skills.WoodCuttingSkill;
-import org.bukkit.ChatColor;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -21,8 +20,7 @@ public class SkillsManager {
     }
 
     public void handleLevelling(SkillType type, KingdomPlayer player) {
-        SkillData skillData = player.getData().getSkillData();
-        SkillProgress progress = skillData.getProgress(type);
+        SkillProgress progress = player.getData().getSkillProgress(type);
         if (progress == null) return;
 
         Skill skill = skillsMap.get(type);
@@ -35,10 +33,11 @@ public class SkillsManager {
             progress.setXp(xp - requiredXP);
             player.levelUpSkill(type, level + 1);
         } else {
-            player.getPlayer().sendMessage(ChatColor.YELLOW + "# " + ChatColor.GRAY + "%s XP: %s/%s".formatted(
-                    type.getDisplayName(),
-                    xp, requiredXP
-            ));
+            player.showProgress(type, xp, requiredXP);
+            // player.getPlayer().sendMessage(ChatColor.YELLOW + "# " + ChatColor.GRAY + "%s XP: %s/%s".formatted(
+            //                    type.getDisplayName(),
+            //                    xp, requiredXP
+            //            ));
         }
     }
 }

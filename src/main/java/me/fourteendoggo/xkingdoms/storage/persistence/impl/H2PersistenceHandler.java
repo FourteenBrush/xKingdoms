@@ -1,67 +1,42 @@
 package me.fourteendoggo.xkingdoms.storage.persistence.impl;
 
-import com.zaxxer.hikari.HikariDataSource;
 import me.fourteendoggo.xkingdoms.XKingdoms;
-import me.fourteendoggo.xkingdoms.storage.persistence.Database;
-import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.player.PlayerData;
-import me.fourteendoggo.xkingdoms.skill.SkillData;
+import me.fourteendoggo.xkingdoms.storage.persistence.Database;
+import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
+import me.fourteendoggo.xkingdoms.utils.Constants;
 import me.fourteendoggo.xkingdoms.utils.Home;
+import me.fourteendoggo.xkingdoms.utils.Utils;
 import org.bukkit.Location;
-import org.intellij.lang.annotations.Language;
 
 import java.nio.file.Path;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 public class H2PersistenceHandler extends Database implements PersistenceHandler {
-    private static final @Language("SQL") String[] INITIAL_TABLE_SETUP = new String[] {
-            """
-            CREATE TABLE IF NOT EXISTS players (
-                uuid UUID PRIMARY KEY,
-                level INT NOT NULL DEFAULT 0
-            );""",
-            """
-            CREATE TABLE IF NOT EXISTS homes (
-                id UUID PRIMARY KEY,
-                owner UUID NOT NULL,
-                name VARCHAR(40) NOT NULL,
-                world UUID NOT NULL,
-                x DOUBLE PRECISION NOT NULL,
-                y DOUBLE PRECISION NOT NULL,
-                y DOUBLE PRECISION NOT NULL,
-                yaw FLOAT NOT NULL,
-                pitch FLOAT NOT NULL
-            );"""
-    };
-    private final HikariDataSource dataSource;
 
     public H2PersistenceHandler(XKingdoms plugin) {
-        this.dataSource = new HikariDataSource();
-
-        Path dbFile = plugin.getDataFolder().toPath().toAbsolutePath().resolve("database");
-        dataSource.setJdbcUrl("jdbc:h2:file:" + dbFile + ";FILE_LOCK=FILE");
-        dataSource.setDriverClassName("org.h2.Driver");
-        applyDataSourceSettings(dataSource, plugin);
-    }
-
-    @Override
-    public Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+        super(plugin, dataSource -> {
+            Path dbPath = plugin.getDataFolder().toPath().toAbsolutePath().resolve("database");
+            dataSource.setJdbcUrl("jdbc:h2:file:" + dbPath + ";FILE_LOCK=FILE");
+            dataSource.setDriverClassName("org.h2.Driver");
+        });
     }
 
     @Override
     public void connect() {
-        try (Connection conn = dataSource.getConnection()) {
-            for (String query : INITIAL_TABLE_SETUP) {
+        try (Connection conn = getConnection()) {
+            for (String query : Constants.H2_INITIAL_TABLE_SETUP) {
                 executeRawQuery(conn, query);
             }
         } catch (SQLException e) {
-            sneakyThrow(e);
+            Utils.sneakyThrow(e);
         }
     }
 
@@ -79,9 +54,12 @@ public class H2PersistenceHandler extends Database implements PersistenceHandler
             if (rs.next()) {
                 int level = rs.getInt("level");
                 List<Home> homes = fetchHomes(conn, id);
-                SkillData skillData = new SkillData(); // TODO: implement proper loading
 
-                return new KingdomPlayer(id, new PlayerData(level, skillData, homes));
+                PlayerData playerData = new PlayerData(level);
+                homes.forEach(playerData::addHome);
+                // TODO: load skills
+
+                return new KingdomPlayer(id, playerData);
             }
             return KingdomPlayer.newFirstJoinedPlayer(id);
         }, id);

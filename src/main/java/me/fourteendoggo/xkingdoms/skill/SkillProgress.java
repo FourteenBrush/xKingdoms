@@ -1,7 +1,5 @@
 package me.fourteendoggo.xkingdoms.skill;
 
-import java.util.Objects;
-
 public class SkillProgress {
     private int level;
     private int xp;
@@ -19,10 +17,6 @@ public class SkillProgress {
         return level;
     }
 
-    public void setLevel(int level) {
-        this.level = level;
-    }
-
     public void incrementLevel() {
         level++;
     }
@@ -35,16 +29,7 @@ public class SkillProgress {
         this.xp = xp;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SkillProgress that = (SkillProgress) o;
-        return level == that.level && xp == that.xp;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(level, xp);
+    public void incrementXP(int amount) {
+        xp += amount;
     }
 }

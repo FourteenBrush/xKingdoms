@@ -1,6 +1,7 @@
 package me.fourteendoggo.xkingdoms.player;
 
-import me.fourteendoggo.xkingdoms.skill.SkillData;
+import me.fourteendoggo.xkingdoms.skill.SkillProgress;
+import me.fourteendoggo.xkingdoms.skill.SkillType;
 import me.fourteendoggo.xkingdoms.utils.Home;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -8,17 +9,11 @@ import java.util.*;
 
 public class PlayerData {
     private int level;
-    private final SkillData skillData;
-    private final Map<String, Home> homesMap;
+    private final Map<String, Home> homesMap = new HashMap<>();
+    private final Map<SkillType, SkillProgress> skillsMap = new EnumMap<>(SkillType.class);
 
-    public PlayerData(int level, SkillData skillData, Collection<Home> homes) {
+    public PlayerData(int level) {
         this.level = level;
-        this.skillData = skillData;
-        this.homesMap = new HashMap<>();
-
-        for (Home home : homes) {
-            homesMap.put(home.name(), home);
-        }
     }
 
     public int getLevel() {
@@ -29,12 +24,20 @@ public class PlayerData {
         this.level = level;
     }
 
-    public SkillData getSkillData() {
-        return skillData;
+    public void addHome(Home home) {
+        homesMap.put(home.name(), home);
+    }
+
+    public Home getHome(String name) {
+        return homesMap.get(name);
     }
 
     public boolean hasHome(String name) {
         return homesMap.containsKey(name);
+    }
+
+    public void removeHome(String name) {
+        homesMap.remove(name);
     }
 
     @UnmodifiableView
@@ -42,15 +45,21 @@ public class PlayerData {
         return Collections.unmodifiableMap(homesMap);
     }
 
-    public Home getHome(String name) {
-        return homesMap.get(name);
+    public void addSkillProgress(SkillType type, SkillProgress progress) {
+        skillsMap.put(type, progress);
     }
 
-    public void addHome(Home home) {
-        homesMap.put(home.name(), home);
+    public SkillProgress getSkillProgress(SkillType type) {
+        return skillsMap.get(type);
     }
 
-    public boolean removeHome(String name) {
-        return homesMap.remove(name) != null;
+    public void incrementSkillXP(SkillType type, int amount) {
+        SkillProgress progress = skillsMap.computeIfAbsent(type, s -> new SkillProgress());
+        progress.incrementXP(amount);
+    }
+
+    @UnmodifiableView
+    public Map<SkillType, SkillProgress> getSkills() {
+        return Collections.unmodifiableMap(skillsMap);
     }
 }

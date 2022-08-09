@@ -1,22 +1,26 @@
 package me.fourteendoggo.xkingdoms.player;
 
-import me.fourteendoggo.xkingdoms.skill.SkillData;
 import me.fourteendoggo.xkingdoms.skill.SkillType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
-import java.util.Collections;
 import java.util.UUID;
 
 public class KingdomPlayer {
     private final UUID uuid;
     private final PlayerData playerData;
+    private final transient BossBar skillProgressBar;
 
     public KingdomPlayer(UUID uuid, PlayerData playerData) {
         this.uuid = uuid;
         this.playerData = playerData;
+        skillProgressBar = Bukkit.createBossBar("Progress: ", BarColor.PINK, BarStyle.SOLID);
+        skillProgressBar.removeAll();
     }
 
     public UUID getUniqueId() {
@@ -35,6 +39,12 @@ public class KingdomPlayer {
     }
 
     public void logout() {
+    }
+
+    public void showProgress(SkillType type, int currentXP, int maxXP) {
+        Bukkit.broadcastMessage("DEBUG: BossBar is null: " + skillProgressBar);
+        skillProgressBar.setTitle("%s: %s/%s".formatted(type.getDisplayName(), currentXP, maxXP));
+        skillProgressBar.addPlayer(getPlayer());
     }
 
     public void levelUpSkill(SkillType type, int reachedLevel) {
@@ -56,6 +66,6 @@ public class KingdomPlayer {
     }
 
     public static KingdomPlayer newFirstJoinedPlayer(UUID id) {
-        return new KingdomPlayer(id, new PlayerData(0, new SkillData(), Collections.emptyList()));
+        return new KingdomPlayer(id, new PlayerData(0));
     }
 }

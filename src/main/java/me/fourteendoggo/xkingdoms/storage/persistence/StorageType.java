@@ -4,12 +4,14 @@ import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.storage.persistence.impl.H2PersistenceHandler;
 import me.fourteendoggo.xkingdoms.storage.persistence.impl.JsonPersistenceHandler;
 import me.fourteendoggo.xkingdoms.storage.persistence.impl.MySQLPersistenceHandler;
+import me.fourteendoggo.xkingdoms.storage.persistence.impl.SqlitePersistenceHandler;
 
 import java.util.function.Function;
 
 public enum StorageType {
     H2("H2 embedded database", H2PersistenceHandler::new),
-    MySQL("MySQL database", MySQLPersistenceHandler::new),
+    MYSQL("MySQL database", MySQLPersistenceHandler::new),
+    SQLITE("Sqlite database", SqlitePersistenceHandler::new),
     JSON("JSON file based storage", JsonPersistenceHandler::new);
     private final String description;
     private final Function<XKingdoms, PersistenceHandler> persistenceFunction;
@@ -34,6 +36,6 @@ public enum StorageType {
                 return type;
             }
         }
-        return JSON; // most stable and fast option in my eyes
+        return SQLITE; // most stable and fast option in my eyes
     }
 }
