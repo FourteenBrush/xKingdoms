@@ -12,15 +12,14 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class Database {
-    protected final HikariDataSource dataSource = new HikariDataSource();
+    protected final HikariDataSource dataSource;
 
-    public Database(XKingdoms plugin, Consumer<HikariDataSource> dataSourceInitializer) {
-        dataSourceInitializer.accept(dataSource);
+    public Database(XKingdoms plugin) {
+        this.dataSource = new HikariDataSource();
         applyDataSourceSettings(dataSource, plugin);
     }
 

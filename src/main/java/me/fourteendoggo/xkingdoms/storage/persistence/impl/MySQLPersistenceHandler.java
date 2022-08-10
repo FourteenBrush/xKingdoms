@@ -11,19 +11,18 @@ import java.util.UUID;
 public class MySQLPersistenceHandler extends Database implements PersistenceHandler { // TODO: implement methods
 
     public MySQLPersistenceHandler(XKingdoms plugin) {
-        super(plugin, dataSource -> {
-            String username = plugin.getConfig().getString("database.username", "mc");
-            String password = plugin.getConfig().getString("database.password", "p@ssword");
+        super(plugin);
+        String username = plugin.getConfig().getString("database.username", "mc");
+        String password = plugin.getConfig().getString("database.password", "p@ssword");
 
-            FileConfiguration config = plugin.getConfig();
-            dataSource.setJdbcUrl("jdbc:mysql://%s:%s/%s".formatted(
-                    config.getString("database.host", "localhost"),
-                    config.getInt("database.port", 3306),
-                    config.getString("database.name", plugin.getName())
-            ));
-            dataSource.setUsername(username);
-            dataSource.setPassword(password);
-        });
+        FileConfiguration config = plugin.getConfig();
+        dataSource.setJdbcUrl("jdbc:mysql://%s:%s/%s".formatted(
+                config.getString("database.host", "localhost"),
+                config.getInt("database.port", 3306),
+                config.getString("database.name", plugin.getName())
+        ));
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
     }
 
     @Override

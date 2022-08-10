@@ -16,11 +16,10 @@ import java.util.UUID;
 public class SqlitePersistenceHandler extends Database implements PersistenceHandler {
 
     public SqlitePersistenceHandler(XKingdoms plugin) {
-        super(plugin, dataSource -> {
-            Path dbPath = plugin.getDataFolder().toPath().toAbsolutePath().resolve("database");
-            dataSource.setJdbcUrl("jdbc:sqlite:" + dbPath);
-            dataSource.setDriverClassName("org.sqlite.JDBC");
-        });
+        super(plugin);
+        Path dbPath = plugin.getDataFolder().toPath().toAbsolutePath().resolve("database");
+        dataSource.setJdbcUrl("jdbc:sqlite:" + dbPath);
+        dataSource.setDriverClassName("org.sqlite.JDBC");
     }
 
     @Override
