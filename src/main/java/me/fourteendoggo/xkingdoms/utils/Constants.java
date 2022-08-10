@@ -30,14 +30,14 @@ public interface Constants {
                 level INTEGER NOT NULL DEFAULT 0
             );""",
             """
-            CREATE TABLE IF NOT EXIST homes (
+            CREATE TABLE IF NOT EXISTS homes (
                 id VARCHAR(36) PRIMARY KEY,
                 owner VARCHAR(36) NOT NULL,
                 name VARCHAR(40) NOT NULL,
                 world VARCHAR(36) NOT NULL,
                 x DOUBLE PRECISION NOT NULL,
                 y DOUBLE PRECISION NOT NULL,
-                y DOUBLE PRECISION NOT NULL,
+                z DOUBLE PRECISION NOT NULL,
                 yaw FLOAT NOT NULL,
                 pitch FLOAT NOT NULL
             );""",

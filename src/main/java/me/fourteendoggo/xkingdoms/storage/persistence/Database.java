@@ -123,7 +123,7 @@ public abstract class Database {
         }
     }
 
-    public Connection getConnection() throws SQLException {
+    protected Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 
