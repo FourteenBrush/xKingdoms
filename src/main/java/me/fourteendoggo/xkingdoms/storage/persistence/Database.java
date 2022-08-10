@@ -25,7 +25,7 @@ public abstract class Database {
 
     private void applyDataSourceSettings(HikariDataSource source, XKingdoms plugin) {
         source.setMaximumPoolSize(plugin.getConfig().getInt("storage.max-connections", 8));
-        source.setPoolName("[" + plugin.getName() + " - database]");
+        source.setPoolName("[" + plugin.getName() + " - connection pool]");
         source.setConnectionTestQuery("SELECT 1");
         source.addDataSourceProperty("useSSL", false);
         source.addDataSourceProperty("cachePrepStmts", true);
