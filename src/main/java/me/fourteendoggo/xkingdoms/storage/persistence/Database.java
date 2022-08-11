@@ -1,7 +1,6 @@
 package me.fourteendoggo.xkingdoms.storage.persistence;
 
 import com.zaxxer.hikari.HikariDataSource;
-import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.utils.Utils;
 
 import java.io.IOException;
@@ -18,19 +17,19 @@ import java.util.logging.Logger;
 public abstract class Database {
     protected final HikariDataSource dataSource;
 
-    public Database(XKingdoms plugin) {
-        this.dataSource = new HikariDataSource();
-        applyDataSourceSettings(dataSource, plugin);
+    public Database() {
+        this(new HikariDataSource());
     }
 
-    private void applyDataSourceSettings(HikariDataSource source, XKingdoms plugin) {
-        source.setMaximumPoolSize(plugin.getConfig().getInt("storage.max-connections", 8));
-        source.setPoolName("[" + plugin.getName() + " - connection pool]");
-        source.setConnectionTestQuery("SELECT 1");
-        source.addDataSourceProperty("useSSL", false);
-        source.addDataSourceProperty("cachePrepStmts", true);
-        source.addDataSourceProperty("prepStmtCacheSize", 250);
-        source.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
+    public Database(HikariDataSource dataSource) {
+        this.dataSource = dataSource;
+        if (dataSource != null) {
+            dataSource.setPoolName("[xKingdoms - connection pool]");
+            dataSource.addDataSourceProperty("useSSL", false);
+            dataSource.addDataSourceProperty("cachePrepStmts", true);
+            dataSource.addDataSourceProperty("prepStmtCacheSize", 250);
+            dataSource.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
+        }
     }
 
     public boolean executePatches(Logger logger) {

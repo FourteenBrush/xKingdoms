@@ -7,7 +7,6 @@ storage:
   name: xkingdoms
   username: mc
   password: p@ssword
-  max-connections: 8
 default: true
 
 vanish:

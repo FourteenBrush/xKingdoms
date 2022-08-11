@@ -11,7 +11,7 @@ import java.util.UUID;
 public class MySQLPersistenceHandler extends Database implements PersistenceHandler { // TODO: implement methods
 
     public MySQLPersistenceHandler(XKingdoms plugin) {
-        super(plugin);
+        super();
         String username = plugin.getConfig().getString("database.username", "mc");
         String password = plugin.getConfig().getString("database.password", "p@ssword");
 

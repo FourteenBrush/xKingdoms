@@ -22,7 +22,7 @@ import java.util.UUID;
 public class H2PersistenceHandler extends Database implements PersistenceHandler {
 
     public H2PersistenceHandler(XKingdoms plugin) {
-        super(plugin);
+        super();
         Path dbPath = plugin.getDataFolder().toPath().toAbsolutePath().resolve("database");
         dataSource.setJdbcUrl("jdbc:h2:file:" + dbPath + ";FILE_LOCK=FILE");
         dataSource.setDriverClassName("org.h2.Driver");

@@ -17,13 +17,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-public class SqlitePersistenceHandler extends Database implements PersistenceHandler {
+public class SqlitePersistenceHandler extends Database implements PersistenceHandler { // TODO: dont use hikari here
+    private final LazyConnection lazyConnection;
 
     public SqlitePersistenceHandler(XKingdoms plugin) {
-        super(plugin);
+        super(null);
         File dbFile = Utils.getCreatedFile(new File(plugin.getDataFolder(), "database.db"));
-        dataSource.setDriverClassName("org.sqlite.JDBC");
-        dataSource.setJdbcUrl("jdbc:sqlite:" + dbFile.getAbsolutePath());
+        this.lazyConnection = new LazyConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+        //dataSource.setDriverClassName("org.sqlite.JDBC");
+        //dataSource.setJdbcUrl("jdbc:sqlite:" + dbFile.getAbsolutePath());
+    }
+
+    @Override
+    protected Connection getConnection() throws SQLException {
+        return lazyConnection.getConnection();
     }
 
     @Override
