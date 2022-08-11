@@ -13,7 +13,7 @@ public class LazyConnection {
     }
 
     public Connection getConnection() throws SQLException {
-        if (connection == null || !connection.isValid(100)) {
+        if (connection == null || !connection.isValid(2)) {
             connection = DriverManager.getConnection(jdbcUrl);
         }
         return connection;
