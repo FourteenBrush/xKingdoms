@@ -133,20 +133,4 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
             }
         });
     }
-
-    private static class ConnectionProvider {
-        private final String jdbcUrl;
-        private Connection connection;
-
-        public ConnectionProvider(String jdbcUrl) {
-            this.jdbcUrl = jdbcUrl;
-        }
-
-        public Connection getConnection() throws SQLException {
-            if (connection == null || !connection.isValid(1)) {
-                connection = DriverManager.getConnection(jdbcUrl);
-            }
-            return connection;
-        }
-    }
 }
