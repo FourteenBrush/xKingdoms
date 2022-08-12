@@ -20,5 +20,5 @@ public abstract class Skill { // TODO: implement abilities
     /**
      * @return the amount of xp that is required to complete this level
      */
-    public abstract int getXPForLevel(int level);
+    public abstract int getRequiredXp(int level);
 }

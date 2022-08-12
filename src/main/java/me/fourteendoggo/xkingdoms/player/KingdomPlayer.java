@@ -1,6 +1,7 @@
 package me.fourteendoggo.xkingdoms.player;
 
 import me.fourteendoggo.xkingdoms.skill.SkillType;
+import me.fourteendoggo.xkingdoms.utils.LazyValue;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -9,18 +10,23 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
+import java.lang.ref.WeakReference;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
 public class KingdomPlayer {
     private final UUID uuid;
     private final PlayerData playerData;
     private final transient BossBar skillProgressBar;
+    private final transient LazyValue<WeakReference<Player>> playerGetter;
 
     public KingdomPlayer(UUID uuid, PlayerData playerData) {
         this.uuid = uuid;
         this.playerData = playerData;
         skillProgressBar = Bukkit.createBossBar("Progress: ", BarColor.PINK, BarStyle.SOLID);
         skillProgressBar.removeAll();
+        this.playerGetter = new LazyValue<>(() -> new WeakReference<>(Bukkit.getPlayer(uuid)));
     }
 
     public UUID getUniqueId() {
@@ -32,7 +38,7 @@ public class KingdomPlayer {
     }
 
     public Player getPlayer() {
-        return Bukkit.getPlayer(uuid);
+        return playerGetter.get().get();
     }
 
     public void login() {
@@ -42,7 +48,6 @@ public class KingdomPlayer {
     }
 
     public void showProgress(SkillType type, int currentXP, int maxXP) {
-        Bukkit.broadcastMessage("DEBUG: BossBar is null: " + skillProgressBar);
         skillProgressBar.setTitle("%s: %s/%s".formatted(type.getDisplayName(), currentXP, maxXP));
         skillProgressBar.addPlayer(getPlayer());
     }
@@ -67,5 +72,15 @@ public class KingdomPlayer {
 
     public static KingdomPlayer newFirstJoinedPlayer(UUID id) {
         return new KingdomPlayer(id, new PlayerData(0));
+    }
+
+    private class AutoHidingBossBar {
+        private final BossBar bossBar = Bukkit.createBossBar("Progress: ", BarColor.PINK, BarStyle.SOLID);
+        private final Duration hideInterval = Duration.ofSeconds(4);
+        private Instant lastUpdateMoment;
+
+        public void updateTitle(String title) {
+            bossBar.setTitle(title);
+        }
     }
 }

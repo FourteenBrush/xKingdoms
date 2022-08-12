@@ -5,7 +5,10 @@ import me.fourteendoggo.xkingdoms.skill.SkillType;
 import me.fourteendoggo.xkingdoms.utils.Home;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlayerData {
     private int level;
@@ -45,7 +48,7 @@ public class PlayerData {
         return Collections.unmodifiableMap(homesMap);
     }
 
-    public void addSkillProgress(SkillType type, SkillProgress progress) {
+    public void setSkillProgress(SkillType type, SkillProgress progress) {
         skillsMap.put(type, progress);
     }
 

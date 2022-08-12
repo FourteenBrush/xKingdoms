@@ -24,6 +24,7 @@ public class Storage {
         try {
             persistenceHandler.connect();
             if (persistenceHandler instanceof Database database) {
+                database.lazyConnection.get();
                 database.executePatches(logger);
             }
             return true;
@@ -36,6 +37,9 @@ public class Storage {
     public void disconnect() {
         try {
             persistenceHandler.disconnect();
+            if (persistenceHandler instanceof Database database) {
+                database.disconnect();
+            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to close database connection", e);
         }

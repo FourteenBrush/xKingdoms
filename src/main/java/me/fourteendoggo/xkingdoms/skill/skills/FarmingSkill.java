@@ -10,7 +10,7 @@ public class FarmingSkill extends Skill {
     }
 
     @Override
-    public int getXPForLevel(int level) {
+    public int getRequiredXp(int level) {
         return 15;
     }
 }
