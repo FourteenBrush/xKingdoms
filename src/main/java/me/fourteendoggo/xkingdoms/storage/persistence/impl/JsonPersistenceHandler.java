@@ -4,9 +4,9 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import me.fourteendoggo.xkingdoms.XKingdoms;
+import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.player.PlayerData;
 import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
-import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.utils.Home;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -27,16 +27,6 @@ public class JsonPersistenceHandler implements PersistenceHandler {
 
     public JsonPersistenceHandler(XKingdoms plugin) {
         this.plugin = plugin;
-    }
-
-    @Override
-    public void connect() {
-
-    }
-
-    @Override
-    public void disconnect() {
-
     }
 
     private File getPlayerDataFile(UUID playerId) {

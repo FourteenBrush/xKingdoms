@@ -1,28 +1,22 @@
 package me.fourteendoggo.xkingdoms.utils;
 
-import java.util.Optional;
-
 public class LazyValue<T> {
-    private final ThrowingSupplier<T> supplier;
+    private final ThrowingSupplier<T> valueSupplier;
     private T value;
 
-    public LazyValue(ThrowingSupplier<T> supplier) {
-        this.supplier = supplier;
+    public LazyValue(ThrowingSupplier<T> valueSupplier) {
+        this.valueSupplier = valueSupplier;
     }
 
     public T get() {
         if (value == null) {
             try {
-                value = supplier.get();
+                value = valueSupplier.get();
             } catch (Exception e) {
                 Utils.sneakyThrow(e);
             }
         }
         return value;
-    }
-
-    public Optional<T> asOptional() {
-        return Optional.ofNullable(value);
     }
 
     @FunctionalInterface

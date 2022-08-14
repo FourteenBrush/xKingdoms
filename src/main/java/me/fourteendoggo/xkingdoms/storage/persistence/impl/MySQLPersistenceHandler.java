@@ -31,11 +31,6 @@ public class MySQLPersistenceHandler extends Database implements PersistenceHand
     }
 
     @Override
-    public void disconnect() {
-
-    }
-
-    @Override
     public KingdomPlayer loadPlayer(UUID id) {
         return null;
     }

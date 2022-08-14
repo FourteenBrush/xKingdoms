@@ -1,15 +1,20 @@
 package me.fourteendoggo.xkingdoms.storage.repository.impl;
 
 import me.fourteendoggo.xkingdoms.kingdom.Kingdom;
-import me.fourteendoggo.xkingdoms.storage.repository.Repository;
+import me.fourteendoggo.xkingdoms.storage.repository.Cache;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class KingdomRepository implements Repository<String, Kingdom> {
+public class KingdomCache implements Cache<String, Kingdom> {
     private final Map<String, Kingdom> kingdomMap = new HashMap<>();
+
+    @Override
+    public boolean isEmpty() {
+        return kingdomMap.isEmpty();
+    }
 
     @Override
     public boolean contains(String name) {

@@ -28,71 +28,71 @@ public abstract class Database {
         this.dataSource = new HikariDataSource();
         this.lazyConnection = new LazyConnection(dataSource::getConnection, true);
 
-        dataSource.setPoolName("[xKingdoms - connection pool]");
+        // dataSource.setPoolName("[xKingdoms - connection pool]");
         dataSource.addDataSourceProperty("useSSL", false);
         dataSource.addDataSourceProperty("cachePrepStmts", true);
         dataSource.addDataSourceProperty("prepStmtCacheSize", 250);
         dataSource.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
     }
 
-    public void executePatches(Logger logger) {
+    /**
+     * Tries to execute database patches (if any), the patches file should be included in the jar
+     * @return true if patches were found and executed or no patches were found, false if something caused an exception
+     */
+    public boolean executePatches(Logger logger) {
         String setup;
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("db-patch.sql")) {
-            if (is == null) return;
+            if (is == null) return true;
             setup = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to read the db-patch.sql file, patches were not executed", e);
-            return;
+            return false;
         }
 
         String[] queries = setup.split(";");
-        try (Connection conn = getConnection()) {
+        try (Connection conn = lazyConnection.get()) {
             for (String query : queries) {
                 if (query.isBlank()) continue;
                 executeRawQuery(conn, query);
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Failed to execute query for database patch, is there an SQL syntax error?", e);
-            return;
+            return false;
         }
         logger.info("Applied patches to the database");
+        return true;
     }
 
-    protected <T> T withConnection2(String sql, ThrowingBiFunction<Connection, PreparedStatement, T> function, Object... placeholders) {
+    protected void executeAll(String... queries) {
+        try (lazyConnection) {
+            for (String query : queries) {
+                executeRawQuery(lazyConnection.get(), query);
+            }
+        } catch (SQLException e) {
+            Utils.sneakyThrow(e);
+        }
+    }
+
+    protected void executeRawQuery(Connection conn, String query) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.execute();
+        }
+    }
+
+    protected <T> T withConnection(String sql, ThrowingBiFunction<Connection, PreparedStatement, T> function, Object... placeholders) {
         try (lazyConnection; PreparedStatement ps = lazyConnection.get().prepareStatement(sql)) {
             fillPlaceholders(ps, placeholders);
-            return function.apply(getConnection(), ps);
+            return function.apply(lazyConnection.get(), ps);
         } catch (SQLException e) {
             Utils.sneakyThrow(e);
         }
         return null;
     }
 
-    protected <T> T withConnection(String statement, ThrowingBiFunction<Connection, PreparedStatement, T> function, Object... placeholders) {
-        try (Connection conn = getConnection(); PreparedStatement ps =
-                conn.prepareStatement(statement)) {
-            fillPlaceholders(ps, placeholders);
-            return function.apply(conn, ps);
-        } catch (SQLException e) {
-            Utils.sneakyThrow(e);
-        }
-        return null;
-    }
-
-    protected void withConnection2(String sql, ThrowingBiConsumer<Connection, PreparedStatement> consumer, Object... placeholders) {
+    protected void withConnection(String sql, ThrowingBiConsumer<Connection, PreparedStatement> consumer, Object... placeholders) {
         try (lazyConnection; PreparedStatement ps = lazyConnection.get().prepareStatement(sql)) {
             fillPlaceholders(ps, placeholders);
-            consumer.accept(getConnection(), ps);
-        } catch (SQLException e) {
-            Utils.sneakyThrow(e);
-        }
-    }
-
-    protected void withConnection(String statement, ThrowingBiConsumer<Connection, PreparedStatement> consumer, Object... placeholders) {
-        try (Connection conn = getConnection(); PreparedStatement ps =
-                conn.prepareStatement(statement)) {
-            fillPlaceholders(ps, placeholders);
-            consumer.accept(conn, ps);
+            consumer.accept(lazyConnection.get(), ps);
         } catch (SQLException e) {
             Utils.sneakyThrow(e);
         }
@@ -100,20 +100,11 @@ public abstract class Database {
 
 
     /*
-    WARNING: DOES NOT CLOSE THE CONNECTION
+    WARNING: THESE DO NOT CLOSE THE CONNECTION
      */
-    protected <T> T withConnection(String statement, Connection conn, ThrowingFunction<PreparedStatement, T> function, Object... placeholders) {
-        try (PreparedStatement ps = conn.prepareStatement(statement)) {
-            fillPlaceholders(ps, placeholders);
-            return function.apply(ps);
-        } catch (SQLException e) {
-            Utils.sneakyThrow(e);
-        }
-        return null;
-    }
 
-    protected void withConnection(String statement, Connection conn, ThrowingConsumer<PreparedStatement> consumer, Object... placeholders) {
-        try (PreparedStatement ps = conn.prepareStatement(statement)) {
+    protected void withConnection(String sql, Connection conn, ThrowingConsumer<PreparedStatement> consumer, Object... placeholders) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             fillPlaceholders(ps, placeholders);
             consumer.accept(ps);
         } catch (SQLException e) {
@@ -138,22 +129,10 @@ public abstract class Database {
         }
     }
 
-    protected void executeRawQuery(Connection conn, String query) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.execute();
-        }
-    }
-
-    protected Connection getConnection() throws SQLException {
-        return lazyConnection.get();
-    }
+    public abstract void connect();
 
     public void disconnect() {
-        try {
-            lazyConnection.forceClose();
-        } catch (SQLException e) {
-            Utils.sneakyThrow(e);
-        }
+        lazyConnection.forceClose();
     }
 
     protected static class LazyConnection extends LazyValue<Connection> implements AutoCloseable {
@@ -165,29 +144,24 @@ public abstract class Database {
         }
 
         @Override
-        public Connection get() {
-            Connection conn = super.get();
+        public void close() {
             try {
-                System.out.println("Closed: " + conn.isClosed());
+                if (autoCloseable) {
+                    get().close();
+                }
             } catch (SQLException e) {
-
-            }
-            return conn;
-        }
-
-        @Override
-        public void close() throws SQLException {
-            if (autoCloseable) {
-                get().close();
-                System.out.println("DEBUG: closed connection"); // TODO: remove
+                Utils.sneakyThrow(e);
             }
         }
 
-        public void forceClose() throws SQLException {
-            Connection conn = get();
-            if (conn.isClosed()) { // some drivers don't like to be closed twice
-                conn.close();
-                System.out.println("DEBUG: closed connection"); // TODO: remove
+        public void forceClose() {
+            try {
+                Connection conn = get();
+                if (!conn.isClosed()) { // some drivers don't like to be closed twice
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                Utils.sneakyThrow(e);
             }
         }
     }
@@ -195,11 +169,6 @@ public abstract class Database {
     @FunctionalInterface
     protected interface ThrowingConsumer<T> {
         void accept(T t) throws SQLException;
-    }
-
-    @FunctionalInterface
-    protected interface ThrowingFunction<T, R> {
-        R apply(T t) throws SQLException;
     }
 
     @FunctionalInterface

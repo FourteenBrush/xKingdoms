@@ -6,7 +6,9 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -29,6 +31,10 @@ public class DelayedRemovalCache<K, V> {
         this.plugin = plugin;
         this.map = new HashMap<>();
         this.removals = new HashMap<>();
+    }
+
+    public boolean isEmpty() {
+        return map.isEmpty();
     }
 
     /**
@@ -89,7 +95,7 @@ public class DelayedRemovalCache<K, V> {
     }
 
     /**
-     * @see Repository#iterator()
+     * @see Cache#iterator()
      * @return an iterator that iterates over the whole collection (pending removals included)
      */
     public Iterator<V> iterator() {

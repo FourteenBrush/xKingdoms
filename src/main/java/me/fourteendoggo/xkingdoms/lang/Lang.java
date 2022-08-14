@@ -3,16 +3,13 @@ package me.fourteendoggo.xkingdoms.lang;
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.utils.Config;
 import me.fourteendoggo.xkingdoms.utils.Reloadable;
-import net.md_5.bungee.api.ChatColor;
+import me.fourteendoggo.xkingdoms.utils.Utils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class Lang implements Reloadable {
-    private static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F\\d]{6}");
+public class Lang implements Reloadable { // TODO: Map<String, MessageFormat>?
     private final Config config;
     private final Logger logger;
     private final Map<String, String> cachedMessages;
@@ -47,21 +44,11 @@ public class Lang implements Reloadable {
                 logger.warning("==========");
                 logger.warning("A message was not present in the lang.yml file, replacing it...");
             }
-            cachedMessages.put(path, colorize(message));
+            cachedMessages.put(path, Utils.colorizeWithHexSupport(message));
         }
         if (needsSave) {
             config.reload();
         }
-    }
-
-    // TODO MessageFormat?
-    private String colorize(String input) {
-        Matcher matcher = HEX_PATTERN.matcher(input);
-        while (matcher.find()) {
-            String hexColor = input.substring(matcher.start(), matcher.end());
-            input = input.replace(hexColor, ChatColor.of(hexColor).toString());
-        }
-        return ChatColor.translateAlternateColorCodes('&', input);
     }
 
     public String getMessage(LangKey key) {
