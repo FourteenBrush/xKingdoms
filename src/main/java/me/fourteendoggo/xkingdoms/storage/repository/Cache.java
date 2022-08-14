@@ -1,6 +1,8 @@
 package me.fourteendoggo.xkingdoms.storage.repository;
 
-public interface Repository<K, V> extends Iterable<V> {
+public interface Cache<K, V> extends Iterable<V> {
+
+    boolean isEmpty();
 
     boolean contains(K k);
 

@@ -11,6 +11,6 @@ public class WoodCuttingSkill extends Skill {
 
     @Override
     public int getRequiredXp(int level) {
-        return 10;
+        return 5 + level;
     }
 }

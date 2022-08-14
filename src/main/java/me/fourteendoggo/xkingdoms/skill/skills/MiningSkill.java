@@ -3,10 +3,10 @@ package me.fourteendoggo.xkingdoms.skill.skills;
 import me.fourteendoggo.xkingdoms.skill.Skill;
 import me.fourteendoggo.xkingdoms.skill.SkillType;
 
-public class FarmingSkill extends Skill {
+public class MiningSkill extends Skill {
 
-    public FarmingSkill() {
-        super(SkillType.FARMING, 0);
+    public MiningSkill() {
+        super(SkillType.MINING, 0);
     }
 
     @Override

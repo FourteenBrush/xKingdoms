@@ -1,5 +1,5 @@
 name: xKingdoms
-version: 1.0
+version: ${project.version}
 author: FourteenDoggo
-api-version: 1.13
 main: me.fourteendoggo.xkingdoms.XKingdoms
+api-version: 1.13

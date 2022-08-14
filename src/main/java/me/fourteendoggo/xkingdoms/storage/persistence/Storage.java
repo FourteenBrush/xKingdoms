@@ -22,10 +22,9 @@ public class Storage {
 
     public boolean connect() {
         try {
-            persistenceHandler.connect();
             if (persistenceHandler instanceof Database database) {
-                database.lazyConnection.get();
-                database.executePatches(logger);
+                database.connect();
+                return database.executePatches(logger);
             }
             return true;
         } catch (Exception e) {
@@ -36,7 +35,6 @@ public class Storage {
 
     public void disconnect() {
         try {
-            persistenceHandler.disconnect();
             if (persistenceHandler instanceof Database database) {
                 database.disconnect();
             }

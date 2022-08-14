@@ -1,9 +1,9 @@
 package me.fourteendoggo.xkingdoms.listeners;
 
 import me.fourteendoggo.xkingdoms.XKingdoms;
-import me.fourteendoggo.xkingdoms.storage.persistence.Storage;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
-import me.fourteendoggo.xkingdoms.storage.repository.impl.UserRepository;
+import me.fourteendoggo.xkingdoms.storage.persistence.Storage;
+import me.fourteendoggo.xkingdoms.storage.repository.impl.UserCache;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,11 +15,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener implements Listener {
     private final Storage storage;
-    private final UserRepository userRepository;
+    private final UserCache userRepository;
 
     public PlayerListener(XKingdoms plugin) {
         this.storage = plugin.getStorage();
-        this.userRepository = plugin.getUserRepository();
+        this.userRepository = plugin.getUserCache();
     }
 
     @EventHandler

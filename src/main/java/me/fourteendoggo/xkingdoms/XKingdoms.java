@@ -1,20 +1,18 @@
 package me.fourteendoggo.xkingdoms;
 
 import co.aikar.commands.BukkitCommandManager;
-import me.fourteendoggo.xkingdoms.commands.HomeCommand;
-import me.fourteendoggo.xkingdoms.commands.ReloadCommand;
-import me.fourteendoggo.xkingdoms.commands.VanishCommand;
+import me.fourteendoggo.xkingdoms.commands.*;
 import me.fourteendoggo.xkingdoms.lang.Lang;
+import me.fourteendoggo.xkingdoms.lang.LangKey;
+import me.fourteendoggo.xkingdoms.listeners.PlayerListener;
 import me.fourteendoggo.xkingdoms.listeners.SkillListener;
+import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
+import me.fourteendoggo.xkingdoms.skill.SkillsManager;
 import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
 import me.fourteendoggo.xkingdoms.storage.persistence.Storage;
 import me.fourteendoggo.xkingdoms.storage.persistence.StorageType;
-import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
-import me.fourteendoggo.xkingdoms.skill.SkillsManager;
-import me.fourteendoggo.xkingdoms.listeners.PlayerListener;
-import me.fourteendoggo.xkingdoms.storage.repository.impl.KingdomRepository;
-import me.fourteendoggo.xkingdoms.storage.repository.impl.UserRepository;
-import me.fourteendoggo.xkingdoms.lang.LangKey;
+import me.fourteendoggo.xkingdoms.storage.repository.impl.KingdomCache;
+import me.fourteendoggo.xkingdoms.storage.repository.impl.UserCache;
 import me.fourteendoggo.xkingdoms.utils.Reloadable;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,8 +23,8 @@ import java.util.Set;
 public class XKingdoms extends JavaPlugin {
     private Lang lang;
     private Storage storage;
-    private UserRepository userRepository;
-    private KingdomRepository kingdomRepository;
+    private UserCache userCache;
+    private KingdomCache kingdomCache;
     private Set<Reloadable> reloadableComponents;
     private SkillsManager skillsManager;
 
@@ -46,8 +44,8 @@ public class XKingdoms extends JavaPlugin {
         getLogger().info("Using a " + storageType.getDescription());
 
         lang = new Lang(this);
-        userRepository = new UserRepository(this);
-        kingdomRepository = new KingdomRepository();
+        userCache = new UserCache(this);
+        kingdomCache = new KingdomCache();
         reloadableComponents = new HashSet<>();
 
         reloadableComponents.add(lang);
@@ -58,10 +56,12 @@ public class XKingdoms extends JavaPlugin {
         manager.registerCommand(new HomeCommand(this));
         manager.registerCommand(new VanishCommand(this));
         manager.registerCommand(new ReloadCommand(this));
+        manager.registerCommand(new SkillCommand());
+        manager.registerCommand(new ServerStatsCommand());
 
         manager.getCommandCompletions().registerCompletion("@homes", context -> {
             // TODO this is null for some reason
-            KingdomPlayer kPlayer = userRepository.get(context.getPlayer().getUniqueId());
+            KingdomPlayer kPlayer = userCache.get(context.getPlayer().getUniqueId());
             return kPlayer.getData().getHomes().keySet();
         });
 
@@ -74,8 +74,10 @@ public class XKingdoms extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getLogger().info("Saving players to database...");
-        userRepository.forEach(storage::savePlayerSync);
+        if (!userCache.isEmpty()) {
+            getLogger().info("Saving players to database...");
+            userCache.forEach(storage::savePlayerSync);
+        }
         storage.disconnect();
 
         getLogger().info(getName() + " has been disabled");
@@ -99,12 +101,12 @@ public class XKingdoms extends JavaPlugin {
         return storage;
     }
 
-    public UserRepository getUserRepository() {
-        return userRepository;
+    public UserCache getUserCache() {
+        return userCache;
     }
 
-    public KingdomRepository getKingdomRepository() {
-        return kingdomRepository;
+    public KingdomCache getKingdomCache() {
+        return kingdomCache;
     }
 
     public SkillsManager getSkillsManager() {

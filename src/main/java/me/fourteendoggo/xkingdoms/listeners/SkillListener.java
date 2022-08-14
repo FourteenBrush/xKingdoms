@@ -59,7 +59,7 @@ public class SkillListener implements Listener {
             return;
         }
 
-        KingdomPlayer kPlayer = plugin.getUserRepository().get(player.getUniqueId());
+        KingdomPlayer kPlayer = plugin.getUserCache().get(player.getUniqueId());
 
         kPlayer.getData().incrementSkillXP(type, 1); // TODO: change this to a proper values for each material or smth
         skillsManager.handleLevelling(type, kPlayer);

@@ -6,11 +6,11 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Values;
 import me.fourteendoggo.xkingdoms.XKingdoms;
+import me.fourteendoggo.xkingdoms.lang.LangKey;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.player.PlayerData;
 import me.fourteendoggo.xkingdoms.utils.Constants;
 import me.fourteendoggo.xkingdoms.utils.Home;
-import me.fourteendoggo.xkingdoms.lang.LangKey;
 import me.fourteendoggo.xkingdoms.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -26,7 +26,7 @@ public class HomeCommand extends BaseCommand {
     @Description("Creates a home at your current location")
     private void onSetHome(Player player, String name) {
         int homesLimit = player.hasPermission(Constants.MODERATOR_PERMISSION_STRING) ? 5 : 2;
-        KingdomPlayer kPlayer = plugin.getUserRepository().get(player.getUniqueId());
+        KingdomPlayer kPlayer = plugin.getUserCache().get(player.getUniqueId());
         PlayerData data = kPlayer.getData();
 
         if (data.getHomes().size() >= homesLimit) {
@@ -53,7 +53,7 @@ public class HomeCommand extends BaseCommand {
     @CommandAlias("homes")
     @Description("Shows all the homes that you have")
     private void onHomesList(Player player) {
-        KingdomPlayer kPlayer = plugin.getUserRepository().get(player.getUniqueId());
+        KingdomPlayer kPlayer = plugin.getUserCache().get(player.getUniqueId());
         PlayerData data = kPlayer.getData();
 
         if (data.getHomes().isEmpty()) {

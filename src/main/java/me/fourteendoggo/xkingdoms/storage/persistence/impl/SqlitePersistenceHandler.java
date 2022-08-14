@@ -16,18 +16,11 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 
 public class SqlitePersistenceHandler extends Database implements PersistenceHandler {
-    // private final ConnectionProvider connectionProvider;
-
-    // public SqlitePersistenceHandler(XKingdoms plugin) {
-    //        super(null);
-    //        File dbFile = Utils.getCreatedFile(new File(plugin.getDataFolder(), "database.db"));
-    //        this.connectionProvider = new ConnectionProvider("jdbc:sqlite:" + dbFile.getAbsolutePath());
-    //    }
 
     public SqlitePersistenceHandler(XKingdoms plugin) {
         super(new LazyConnection(() -> {
@@ -38,43 +31,25 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
 
     @Override
     public void connect() {
-        try (lazyConnection) {
-            for (String query : Constants.SQLITE_INITIAL_TABLE_SETUP) {
-                executeRawQuery(getConnection(), query);
-            }
-        } catch (SQLException e) {
-            Utils.sneakyThrow(e);
-        }
-    }
-
-    @Override
-    public void disconnect() {
-        try {
-            Connection conn = getConnection();
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (SQLException e) {
-            Utils.sneakyThrow(e);
-        }
+        executeAll(Constants.SQLITE_INITIAL_TABLE_SETUP);
     }
 
     @Override
     public KingdomPlayer loadPlayer(UUID id) {
-        return withConnection2("SELECT * FROM players WHERE uuid=?;", (conn, ps) -> {
+        return withConnection("SELECT * FROM players WHERE uuid=?;", (conn, ps) -> {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                   int level = rs.getInt("level");
                   PlayerData playerData = new PlayerData(level);
 
-                  putHomes(playerData, conn, id);
-                  putSkills(playerData, conn, id);
+                  putHomes(conn, playerData, id);
+                  putSkills(conn, playerData, id);
             }
             return KingdomPlayer.newFirstJoinedPlayer(id);
         }, id);
     }
 
-    private void putHomes(PlayerData playerData, Connection conn, UUID id) {
+    private void putHomes(Connection conn, PlayerData playerData, UUID id) {
         withConnection("SELECT * FROM homes WHERE owner=?;", conn, ps -> {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -83,7 +58,7 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
         }, id);
     }
 
-    private void putSkills(PlayerData playerData, Connection conn, UUID id) {
+    private void putSkills(Connection conn, PlayerData playerData, UUID id) {
         withConnection("SELECT * FROM skills WHERE owner=?;", conn, ps -> {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -99,9 +74,10 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
     public void savePlayer(KingdomPlayer player) {
         String sql = "INSERT INTO players(uuid,level) VALUES (?,?) ON CONFLICT DO UPDATE SET level=?;";
         PlayerData playerData = player.getData();
-        withConnection2(sql, (conn, ps) -> {
+        withConnection(sql, (conn, ps) -> {
             ps.executeUpdate();
             saveHomes(conn, playerData.getHomes().values());
+            saveSkills(conn, playerData.getSkills(), player.getUniqueId());
         }, player.getUniqueId(), playerData.getLevel(), playerData.getLevel());
     }
 
@@ -128,6 +104,32 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
 
                 // execute every 10 records or fewer
                 if (count % 10 == 0 || count == homes.size()) {
+                    ps.executeBatch();
+                }
+            }
+        });
+    }
+
+    private void saveSkills(Connection conn, Map<SkillType, SkillProgress> skills, UUID id) {
+        String sql = "INSERT INTO skills(owner,type,level,xp) VALUES (?,?,?,?) ON CONFLICT DO UPDATE SET level=?, xp=?;";
+        withConnection(sql, conn, ps -> {
+            int count = 0;
+            for (Map.Entry<SkillType, SkillProgress> entry : skills.entrySet()) {
+                SkillType type = entry.getKey();
+                SkillProgress progress = entry.getValue();
+
+                ps.setString(1, id.toString());
+                ps.setString(2, type.name());
+                ps.setInt(3, progress.getLevel());
+                ps.setInt(4, progress.getXp());
+
+                ps.setInt(5, progress.getLevel());
+                ps.setInt(6, progress.getXp());
+
+                ps.addBatch();
+                count++;
+
+                if (count % 10 == 0 || count == skills.size()) {
                     ps.executeBatch();
                 }
             }

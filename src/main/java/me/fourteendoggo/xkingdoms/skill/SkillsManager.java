@@ -2,6 +2,7 @@ package me.fourteendoggo.xkingdoms.skill;
 
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.skill.skills.FarmingSkill;
+import me.fourteendoggo.xkingdoms.skill.skills.MiningSkill;
 import me.fourteendoggo.xkingdoms.skill.skills.WoodCuttingSkill;
 
 import java.util.EnumMap;
@@ -13,6 +14,7 @@ public class SkillsManager {
     public SkillsManager() {
         addSkill(new WoodCuttingSkill());
         addSkill(new FarmingSkill());
+        addSkill(new MiningSkill());
     }
 
     private void addSkill(Skill skill) {

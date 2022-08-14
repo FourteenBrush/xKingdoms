@@ -2,7 +2,7 @@ package me.fourteendoggo.xkingdoms.storage.repository.impl;
 
 import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
-import me.fourteendoggo.xkingdoms.storage.repository.Repository;
+import me.fourteendoggo.xkingdoms.storage.repository.Cache;
 import me.fourteendoggo.xkingdoms.storage.repository.DelayedRemovalCache;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,11 +10,16 @@ import java.time.Duration;
 import java.util.Iterator;
 import java.util.UUID;
 
-public class UserRepository implements Repository<UUID, KingdomPlayer> {
+public class UserCache implements Cache<UUID, KingdomPlayer> {
     private final DelayedRemovalCache<UUID, KingdomPlayer> userMap;
 
-    public UserRepository(XKingdoms plugin) {
+    public UserCache(XKingdoms plugin) {
         this.userMap = new DelayedRemovalCache<>(Duration.ofMinutes(10), plugin);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return userMap.isEmpty();
     }
 
     @Override
