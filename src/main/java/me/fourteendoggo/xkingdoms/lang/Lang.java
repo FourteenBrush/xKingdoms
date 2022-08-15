@@ -30,23 +30,22 @@ public class Lang implements Reloadable { // TODO: Map<String, MessageFormat>?
 
     @SuppressWarnings("ConstantConditions")
     private void fillMap() {
-        boolean needsSave = false;
+        boolean saveRequired = false;
         for (LangKey key : LangKey.values()) {
             String path = key.getPath();
             String message;
+
             if (config.isSet(path)) { // TODO: config.get(path, null) != null?
                 message = config.getString(path);
             } else {
                 message = config.getDefaults().getString(path);
                 config.set(path, message);
-                needsSave = true;
-
-                logger.warning("==========");
-                logger.warning("A message was not present in the lang.yml file, replacing it...");
+                saveRequired = true;
             }
             cachedMessages.put(path, Utils.colorizeWithHexSupport(message));
         }
-        if (needsSave) {
+        if (saveRequired) {
+            logger.info("Some messages were not present in the lang.yml file and were replaced");
             config.reload();
         }
     }

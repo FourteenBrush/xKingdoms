@@ -45,7 +45,7 @@ public class SkillListener implements Listener {
         } else if (Tag.LOGS_THAT_BURN.isTagged(material)) {
             handleProgress(SkillType.WOODCUTTING, AXE_TYPES::contains, player, event);
         } else if (Tag.STONE_ORE_REPLACEABLES.isTagged(material)) {
-            //handleProgress(SkillType.MINING, PICKAXE_TYPES::contains, player, event); // TODO
+            handleProgress(SkillType.MINING, PICKAXE_TYPES::contains, player, event); // TODO
         }
     }
 
@@ -59,7 +59,7 @@ public class SkillListener implements Listener {
             return;
         }
 
-        KingdomPlayer kPlayer = plugin.getUserCache().get(player.getUniqueId());
+        KingdomPlayer kPlayer = plugin.getUserManager().getUser(player.getUniqueId());
 
         kPlayer.getData().incrementSkillXP(type, 1); // TODO: change this to a proper values for each material or smth
         skillsManager.handleLevelling(type, kPlayer);

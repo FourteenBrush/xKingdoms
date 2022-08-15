@@ -22,7 +22,7 @@ public class ReloadCommand extends BaseCommand {
 
     @Default
     private void onReload(CommandSender sender) {
-        plugin.reloadAllComponents();
+        plugin.reload();
         sender.sendMessage(plugin.getLang(LangKey.RELOAD_FINISHED));
     }
 }

@@ -10,23 +10,20 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
-import java.lang.ref.WeakReference;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.UUID;
 
 public class KingdomPlayer {
     private final UUID uuid;
     private final PlayerData playerData;
     private final transient BossBar skillProgressBar;
-    private final transient LazyValue<WeakReference<Player>> playerGetter;
+    private final transient LazyValue<Player> playerGetter;
 
     public KingdomPlayer(UUID uuid, PlayerData playerData) {
         this.uuid = uuid;
         this.playerData = playerData;
         skillProgressBar = Bukkit.createBossBar("Progress: ", BarColor.PINK, BarStyle.SOLID);
         skillProgressBar.removeAll();
-        this.playerGetter = new LazyValue<>(() -> new WeakReference<>(Bukkit.getPlayer(uuid)));
+        this.playerGetter = new LazyValue<>(() -> Bukkit.getPlayer(uuid));
     }
 
     public UUID getUniqueId() {
@@ -38,13 +35,11 @@ public class KingdomPlayer {
     }
 
     public Player getPlayer() {
-        return playerGetter.get().get();
+        return playerGetter.get();
     }
 
-    public void login() {
-    }
-
-    public void logout() {
+    public void invalidate() {
+        playerGetter.clear();
     }
 
     public void showProgress(SkillType type, int currentXP, int maxXP) {
@@ -60,27 +55,7 @@ public class KingdomPlayer {
         player.sendMessage(ChatColor.DARK_PURPLE + "Congratulations! You reached level %s in %s".formatted(reachedLevel, type.getDisplayName()));
     }
 
-    public void levelUp(int reachedLevel) {
-        Player player = getPlayer();
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
-        player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
-
-        player.sendTitle("You reached level " + reachedLevel, null, 2, 20, 2);
-
-        player.setLevel(reachedLevel);
-    }
-
     public static KingdomPlayer newFirstJoinedPlayer(UUID id) {
         return new KingdomPlayer(id, new PlayerData(0));
-    }
-
-    private class AutoHidingBossBar {
-        private final BossBar bossBar = Bukkit.createBossBar("Progress: ", BarColor.PINK, BarStyle.SOLID);
-        private final Duration hideInterval = Duration.ofSeconds(4);
-        private Instant lastUpdateMoment;
-
-        public void updateTitle(String title) {
-            bossBar.setTitle(title);
-        }
     }
 }

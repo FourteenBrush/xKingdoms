@@ -19,6 +19,10 @@ public class LazyValue<T> {
         return value;
     }
 
+    public void clear() {
+        value = null;
+    }
+
     @FunctionalInterface
     public interface ThrowingSupplier<T> {
         T get() throws Exception;

@@ -26,7 +26,7 @@ public class HomeCommand extends BaseCommand {
     @Description("Creates a home at your current location")
     private void onSetHome(Player player, String name) {
         int homesLimit = player.hasPermission(Constants.MODERATOR_PERMISSION_STRING) ? 5 : 2;
-        KingdomPlayer kPlayer = plugin.getUserCache().get(player.getUniqueId());
+        KingdomPlayer kPlayer = plugin.getUserManager().getUser(player.getUniqueId());
         PlayerData data = kPlayer.getData();
 
         if (data.getHomes().size() >= homesLimit) {
@@ -53,7 +53,7 @@ public class HomeCommand extends BaseCommand {
     @CommandAlias("homes")
     @Description("Shows all the homes that you have")
     private void onHomesList(Player player) {
-        KingdomPlayer kPlayer = plugin.getUserCache().get(player.getUniqueId());
+        KingdomPlayer kPlayer = plugin.getUserManager().getUser(player.getUniqueId());
         PlayerData data = kPlayer.getData();
 
         if (data.getHomes().isEmpty()) {
