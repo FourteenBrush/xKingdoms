@@ -10,7 +10,9 @@ import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
 import me.fourteendoggo.xkingdoms.utils.Constants;
 import me.fourteendoggo.xkingdoms.utils.Home;
 import me.fourteendoggo.xkingdoms.utils.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 
 import java.io.File;
 import java.sql.Connection;
@@ -39,14 +41,12 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
         return withConnection("SELECT * FROM players WHERE uuid=?;", (conn, ps) -> {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                System.out.println("loading player from database");
                 int level = rs.getInt("level");
                 PlayerData playerData = new PlayerData(level);
 
                 insertHomes(conn, playerData, id);
                 insertSkills(conn, playerData, id);
 
-                System.out.println("returning new player");
                 return new KingdomPlayer(id, playerData);
             }
             return KingdomPlayer.newFirstJoinedPlayer(id);
@@ -57,7 +57,19 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
         withConnection("SELECT * FROM homes WHERE owner=?;", conn, ps -> {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                playerData.addHome(Home.fromResultSet(rs));
+                String name = rs.getString("name");
+                UUID worldUUID = uuidFromBytes(rs.getBytes("world"));
+
+                double x = rs.getDouble("x");
+                double y = rs.getDouble("y");
+                double z = rs.getDouble("z");
+                float yaw = rs.getFloat("yaw");
+                float pitch = rs.getFloat("pitch");
+
+                World world = Bukkit.getWorld(worldUUID);
+                Location location = new Location(world, x, y, z, yaw, pitch);
+
+                playerData.addHome(new Home(name, id, location));
             }
         }, id);
     }
@@ -87,15 +99,12 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
     }
 
     private void saveHomes(Connection conn, Collection<Home> homes) {
-        String sql = "INSERT INTO homes(owner,name,world,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?,?);";
+        String sql = "INSERT OR IGNORE INTO homes(owner,name,world,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?,?);";
         withConnection(sql, conn, ps -> {
             int count = 0;
             for (Home home : homes) {
                 Location loc = home.location();
-                if (loc.getWorld() == null) {
-                    System.err.printf("FATAL: could not save player home {name: %s, uuid: %s} due to the world being null%n", home.name(), home.owner());
-                    continue;
-                }
+                assert loc.getWorld() != null;
 
                 ps.setBytes(1, uuidToBytes(home.owner()));
                 ps.setString(2, home.name());

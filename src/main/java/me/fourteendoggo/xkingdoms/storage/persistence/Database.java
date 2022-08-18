@@ -7,7 +7,6 @@ import me.fourteendoggo.xkingdoms.utils.Utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -122,21 +121,22 @@ public abstract class Database {
                 case Integer integer -> ps.setInt(i, integer);
                 case Long l -> ps.setLong(i, l);
                 case Float f -> ps.setFloat(i, f);
-                case UUID u -> {
-                    ps.setBytes(i, uuidToBytes(u));
-                }
+                case UUID u -> ps.setBytes(i, uuidToBytes(u));
                 default -> throw new IllegalStateException("the programmer was too lazy to cover all possible outcomes");
             }
         }
     }
 
     protected byte[] uuidToBytes(UUID id) {
-        byte[] bytes = new byte[16];
-        ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN)
+        return ByteBuffer.allocate(16)
                 .putLong(id.getMostSignificantBits())
-                .putLong(id.getLeastSignificantBits());
+                .putLong(id.getLeastSignificantBits())
+                .flip().array();
+    }
 
-        return bytes;
+    protected UUID uuidFromBytes(byte[] bytes) {
+        ByteBuffer buf = ByteBuffer.wrap(bytes);
+        return new UUID(buf.getLong(), buf.getLong());
     }
 
     public void disconnect() {
