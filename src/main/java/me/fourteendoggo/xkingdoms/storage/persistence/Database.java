@@ -6,9 +6,10 @@ import me.fourteendoggo.xkingdoms.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -28,7 +29,6 @@ public abstract class Database {
         this.dataSource = new HikariDataSource();
         this.lazyConnection = new LazyConnection(dataSource::getConnection, true);
 
-        // dataSource.setPoolName("[xKingdoms - connection pool]");
         dataSource.addDataSourceProperty("useSSL", false);
         dataSource.addDataSourceProperty("cachePrepStmts", true);
         dataSource.addDataSourceProperty("prepStmtCacheSize", 250);
@@ -122,18 +122,28 @@ public abstract class Database {
                 case Integer integer -> ps.setInt(i, integer);
                 case Long l -> ps.setLong(i, l);
                 case Float f -> ps.setFloat(i, f);
-                case UUID u -> ps.setString(i, u.toString());
-                case Date d -> ps.setDate(i, d);
+                case UUID u -> {
+                    ps.setBytes(i, uuidToBytes(u));
+                }
                 default -> throw new IllegalStateException("the programmer was too lazy to cover all possible outcomes");
             }
         }
     }
 
-    public abstract void connect();
+    protected byte[] uuidToBytes(UUID id) {
+        byte[] bytes = new byte[16];
+        ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN)
+                .putLong(id.getMostSignificantBits())
+                .putLong(id.getLeastSignificantBits());
+
+        return bytes;
+    }
 
     public void disconnect() {
         lazyConnection.forceClose();
     }
+
+    public abstract void connect();
 
     protected static class LazyConnection extends LazyValue<Connection> implements AutoCloseable {
         private final boolean autoCloseable;

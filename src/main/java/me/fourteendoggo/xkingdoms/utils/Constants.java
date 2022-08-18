@@ -8,27 +8,31 @@ public interface Constants {
     @Language("SQL") String[] SQLITE_INITIAL_TABLE_SETUP = new String[] {
             """
             CREATE TABLE IF NOT EXISTS players (
-                uuid VARCHAR(36) NOT NULL,
-                level INTEGER NOT NULL DEFAULT 0
+                uuid BLOB,
+                level INTEGER,
+                PRIMARY KEY (uuid)
             );""",
             """
             CREATE TABLE IF NOT EXISTS homes (
-                id VARCHAR(36) PRIMARY KEY,
-                owner VARCHAR(36) NOT NULL,
-                name VARCHAR(40) NOT NULL,
-                world VARCHAR(36) NOT NULL,
+                owner BLOB,
+                name VARCHAR(40),
+                world BLOB NOT NULL,
                 x DOUBLE PRECISION NOT NULL,
                 y DOUBLE PRECISION NOT NULL,
                 z DOUBLE PRECISION NOT NULL,
                 yaw FLOAT NOT NULL,
-                pitch FLOAT NOT NULL
+                pitch FLOAT NOT NULL,
+                PRIMARY KEY (owner, name),
+                FOREIGN KEY (owner) REFERENCES players (uuid)
             );""",
             """
             CREATE TABLE IF NOT EXISTS skills (
-                owner VARCHAR(36) NOT NULL,
-                type VARCHAR(40) PRIMARY KEY,
-                level INT NOT NULL DEFAULT 0,
-                xp INT NOT NULL DEFAULT 0
+                owner BLOB,
+                type VARCHAR(40),
+                level INT NOT NULL,
+                xp INT NOT NULL,
+                PRIMARY KEY (owner, type),
+                FOREIGN KEY (owner) REFERENCES players (uuid)
             );"""
     };
 }

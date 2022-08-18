@@ -10,6 +10,7 @@ public enum LangKey {
     HOME_ALREADY_EXISTS("home.already-exists"),
     HOME_NO_HOMES_CREATED("home.no-homes-created"),
     HOME_CREATED("home.created"),
+    HOME_REMOVED("home.removed"),
     VANISH_ANNOUNCE("vanish.announce-to-mods"),
     VANISH_BACK_VISIBLE_ANNOUNCE("vanish.back-visible"),
     VANISH_ENABLED("vanish.enabled.for-self"),

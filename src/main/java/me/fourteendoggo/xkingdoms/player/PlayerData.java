@@ -56,9 +56,8 @@ public class PlayerData {
         return skillsMap.get(type);
     }
 
-    public void incrementSkillXP(SkillType type, int amount) {
-        SkillProgress progress = skillsMap.computeIfAbsent(type, s -> new SkillProgress());
-        progress.incrementXP(amount);
+    public void updateSkillXp(SkillType type, int amount) {
+        skillsMap.computeIfAbsent(type, t -> new SkillProgress()).incrementXP(amount);
     }
 
     @UnmodifiableView

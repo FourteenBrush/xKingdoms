@@ -1,7 +1,10 @@
 package me.fourteendoggo.xkingdoms;
 
 import co.aikar.commands.BukkitCommandManager;
-import me.fourteendoggo.xkingdoms.commands.*;
+import me.fourteendoggo.xkingdoms.commands.HomeCommand;
+import me.fourteendoggo.xkingdoms.commands.ReloadCommand;
+import me.fourteendoggo.xkingdoms.commands.SkillCommand;
+import me.fourteendoggo.xkingdoms.commands.VanishCommand;
 import me.fourteendoggo.xkingdoms.lang.Lang;
 import me.fourteendoggo.xkingdoms.lang.LangKey;
 import me.fourteendoggo.xkingdoms.listeners.PlayerListener;
@@ -12,14 +15,12 @@ import me.fourteendoggo.xkingdoms.storage.management.UserManager;
 import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
 import me.fourteendoggo.xkingdoms.storage.persistence.Storage;
 import me.fourteendoggo.xkingdoms.storage.persistence.StorageType;
-import me.fourteendoggo.xkingdoms.storage.repository.impl.KingdomCache;
 import me.fourteendoggo.xkingdoms.utils.Reloadable;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,7 +29,6 @@ public class XKingdoms extends JavaPlugin {
     private Lang lang;
     private Storage storage;
     private UserManager userManager;
-    private KingdomCache kingdomCache;
     private Set<Reloadable> reloadableComponents;
     private SkillsManager skillsManager;
 
@@ -53,7 +53,6 @@ public class XKingdoms extends JavaPlugin {
 
         lang = new Lang(this);
         userManager = new UserManager(storage);
-        kingdomCache = new KingdomCache();
         reloadableComponents = new HashSet<>();
 
         reloadableComponents.add(lang);
@@ -65,26 +64,13 @@ public class XKingdoms extends JavaPlugin {
         pm.registerEvents(new PlayerListener(this), this);
         pm.registerEvents(new SkillListener(this), this);
 
-        if (reloading && !Bukkit.getOnlinePlayers().isEmpty() && isLoadingFromUpdateFolder()) {
+        if (reloading) {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 userManager.loadIfAbsent(player.getUniqueId());
             }
         }
 
         getLogger().info("xKingdoms has been enabled");
-    }
-
-    private boolean isLoadingFromUpdateFolder() {
-        File updateFolder = Bukkit.getUpdateFolderFile();
-        File[] contents = updateFolder.listFiles();
-        if (contents == null || contents.length == 0) return false;
-
-        for (File file : contents) {
-            if (file.getName().endsWith(".jar") && file.getName().startsWith(getName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -97,7 +83,7 @@ public class XKingdoms extends JavaPlugin {
     public void reload() {
         reloadConfig();
         reloadableComponents.forEach(Reloadable::reload);
-        getLogger().info("Reloaded xKingdoms");
+        getLogger().info("xKingdoms has been reloaded");
     }
 
     @SuppressWarnings("deprecation")
@@ -108,7 +94,6 @@ public class XKingdoms extends JavaPlugin {
         manager.registerCommand(new VanishCommand(this));
         manager.registerCommand(new ReloadCommand(this));
         manager.registerCommand(new SkillCommand());
-        manager.registerCommand(new ServerStatsCommand());
 
         manager.getCommandCompletions().registerCompletion("@homes", context -> {
             // TODO this is null for some reason
@@ -131,10 +116,6 @@ public class XKingdoms extends JavaPlugin {
 
     public UserManager getUserManager() {
         return userManager;
-    }
-
-    public KingdomCache getKingdomCache() {
-        return kingdomCache;
     }
 
     public SkillsManager getSkillsManager() {

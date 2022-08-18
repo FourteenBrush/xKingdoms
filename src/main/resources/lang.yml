@@ -12,6 +12,7 @@ home:
   already-exists: "&cYou already have a home with that name!"
   no-homes-created: "&cYou haven't created any homes!"
   created: "#83c916You have created a new home, %s"
+  removed: "#83c916Successfully deleted home"
 vanish:
   announce-to-mods: "&e%s has vanished. Poof"
   back-visible: "&e%s has become visible"

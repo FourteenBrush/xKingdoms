@@ -12,9 +12,9 @@ public record Home(String name, UUID owner, Location location) {
     public static Home fromResultSet(ResultSet rs) {
         try {
             String name = rs.getString("name");
-            UUID owner = UUID.fromString(rs.getString("owner"));
+            UUID owner = UUID.nameUUIDFromBytes(rs.getBytes("owner"));
 
-            UUID worldUUID = UUID.fromString(rs.getString("world"));
+            UUID worldUUID = UUID.nameUUIDFromBytes(rs.getBytes("world"));
             double x = rs.getDouble("x");
             double y = rs.getDouble("y");
             double z = rs.getDouble("z");
@@ -24,8 +24,9 @@ public record Home(String name, UUID owner, Location location) {
 
             return new Home(name, owner, location);
         } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            Utils.sneakyThrow(e);
         }
+        // always unreachable statement
+        return null;
     }
 }

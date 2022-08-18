@@ -11,6 +11,7 @@ public enum StorageType {
     MYSQL("MySQL database", MySQLPersistenceHandler::new),
     SQLITE("Sqlite database", SqlitePersistenceHandler::new),
     JSON("JSON file based storage", JsonPersistenceHandler::new);
+
     private final String description;
     private final Function<XKingdoms, PersistenceHandler> persistenceFunction;
 

@@ -39,17 +39,21 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
         return withConnection("SELECT * FROM players WHERE uuid=?;", (conn, ps) -> {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                  int level = rs.getInt("level");
-                  PlayerData playerData = new PlayerData(level);
+                System.out.println("loading player from database");
+                int level = rs.getInt("level");
+                PlayerData playerData = new PlayerData(level);
 
-                  putHomes(conn, playerData, id);
-                  putSkills(conn, playerData, id);
+                insertHomes(conn, playerData, id);
+                insertSkills(conn, playerData, id);
+
+                System.out.println("returning new player");
+                return new KingdomPlayer(id, playerData);
             }
             return KingdomPlayer.newFirstJoinedPlayer(id);
         }, id);
     }
 
-    private void putHomes(Connection conn, PlayerData playerData, UUID id) {
+    private void insertHomes(Connection conn, PlayerData playerData, UUID id) {
         withConnection("SELECT * FROM homes WHERE owner=?;", conn, ps -> {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -58,7 +62,7 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
         }, id);
     }
 
-    private void putSkills(Connection conn, PlayerData playerData, UUID id) {
+    private void insertSkills(Connection conn, PlayerData playerData, UUID id) {
         withConnection("SELECT * FROM skills WHERE owner=?;", conn, ps -> {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -74,30 +78,33 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
     public void savePlayer(KingdomPlayer player) {
         String sql = "INSERT INTO players(uuid,level) VALUES (?,?) ON CONFLICT DO UPDATE SET level=?;";
         PlayerData playerData = player.getData();
+        int level = playerData.getLevel();
         withConnection(sql, (conn, ps) -> {
             ps.executeUpdate();
             saveHomes(conn, playerData.getHomes().values());
             saveSkills(conn, playerData.getSkills(), player.getUniqueId());
-        }, player.getUniqueId(), playerData.getLevel(), playerData.getLevel());
+        }, player.getUniqueId(), level, level);
     }
 
     private void saveHomes(Connection conn, Collection<Home> homes) {
-        String sql = "INSERT INTO homes(id,owner,name,world,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?,?,?);";
+        String sql = "INSERT INTO homes(owner,name,world,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?,?);";
         withConnection(sql, conn, ps -> {
             int count = 0;
             for (Home home : homes) {
                 Location loc = home.location();
-                assert loc.getWorld() != null;
+                if (loc.getWorld() == null) {
+                    System.err.printf("FATAL: could not save player home {name: %s, uuid: %s} due to the world being null%n", home.name(), home.owner());
+                    continue;
+                }
 
-                ps.setString(1, UUID.randomUUID().toString());
-                ps.setString(2, home.owner().toString());
-                ps.setString(3, home.name());
-                ps.setString(4, loc.getWorld().getUID().toString());
-                ps.setInt(5, loc.getBlockX());
-                ps.setInt(6, loc.getBlockY());
-                ps.setInt(7, loc.getBlockZ());
-                ps.setFloat(8, loc.getYaw());
-                ps.setFloat(9, loc.getPitch());
+                ps.setBytes(1, uuidToBytes(home.owner()));
+                ps.setString(2, home.name());
+                ps.setBytes(3, uuidToBytes(loc.getWorld().getUID()));
+                ps.setInt(4, loc.getBlockX());
+                ps.setInt(5, loc.getBlockY());
+                ps.setInt(6, loc.getBlockZ());
+                ps.setFloat(7, loc.getYaw());
+                ps.setFloat(8, loc.getPitch());
 
                 ps.addBatch();
                 count++;
@@ -118,7 +125,7 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
                 SkillType type = entry.getKey();
                 SkillProgress progress = entry.getValue();
 
-                ps.setString(1, id.toString());
+                ps.setBytes(1, uuidToBytes(id));
                 ps.setString(2, type.name());
                 ps.setInt(3, progress.getLevel());
                 ps.setInt(4, progress.getXp());

@@ -58,9 +58,9 @@ public class Storage {
     public void savePlayerSync(KingdomPlayer player) {
         try {
             persistenceHandler.savePlayer(player);
-            logger.info("Saved player with uuid " + player.getUniqueId());
+            logger.info("Saved player " + player.getPlayer().getName());
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Failed to save player with uuid " + player.getUniqueId(), e);
+            logger.log(Level.SEVERE, "Failed to save player " + player.getPlayer().getName(), e);
         }
     }
 
@@ -74,8 +74,8 @@ public class Storage {
 
     public CompletableFuture<Void> savePlayer(KingdomPlayer player) {
         return makeFuture(() -> persistenceHandler.savePlayer(player),
-                "Saved player with uuid " + player.getUniqueId(),
-                "Failed to save player with uuid " + player.getUniqueId());
+                "Saved player " + player.getPlayer().getName(),
+                "Failed to save player " + player.getPlayer().getName());
     }
 
     /* when things go wrong, only messaging the player is required, exception is handled here */

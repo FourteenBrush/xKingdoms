@@ -12,7 +12,6 @@ import me.fourteendoggo.xkingdoms.player.PlayerData;
 import me.fourteendoggo.xkingdoms.utils.Constants;
 import me.fourteendoggo.xkingdoms.utils.Home;
 import me.fourteendoggo.xkingdoms.utils.Utils;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class HomeCommand extends BaseCommand {
@@ -46,7 +45,11 @@ public class HomeCommand extends BaseCommand {
     @CommandCompletion("@homes")
     @Description("Deletes the home with the entered name")
     private void onDeleteHome(Player player, @Values("@homes") String name) {
-        Bukkit.broadcastMessage("deleted home " + name);
+        KingdomPlayer kPlayer = plugin.getUserManager().getUser(player.getUniqueId());
+        PlayerData data = kPlayer.getData();
+
+        data.removeHome(name);
+        player.sendMessage(plugin.getLang(LangKey.HOME_REMOVED));
     }
 
     // TODO maybe a gui mode, maybe toggleable?
