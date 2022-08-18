@@ -42,8 +42,9 @@ public class SkillListener implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        Material material = event.getBlock().getType();
         Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.CREATIVE) return;
+        Material material = event.getBlock().getType();
 
         if (Tag.CROPS.isTagged(material)) {
             Ageable crop = (Ageable) event.getBlock().getBlockData();
@@ -64,7 +65,7 @@ public class SkillListener implements Listener {
         ItemStack mainHandItem = player.getInventory().getItemInMainHand();
         if (mainHandItem.getType().isAir()) return;
 
-        if (player.getGameMode() == GameMode.SURVIVAL && !toolPredicate.test(mainHandItem.getType())) {
+        if (!toolPredicate.test(mainHandItem.getType())) {
             player.sendMessage(ChatColor.RED + "Please use the correct tool for this!");
             event.setCancelled(true);
             return;

@@ -64,7 +64,8 @@ public class XKingdoms extends JavaPlugin {
         pm.registerEvents(new PlayerListener(this), this);
         pm.registerEvents(new SkillListener(this), this);
 
-        if (reloading) {
+        if (reloading && !Bukkit.getOnlinePlayers().isEmpty()) {
+            getLogger().info("Loading players which are still on the server...");
             for (Player player : Bukkit.getOnlinePlayers()) {
                 userManager.loadIfAbsent(player.getUniqueId());
             }
