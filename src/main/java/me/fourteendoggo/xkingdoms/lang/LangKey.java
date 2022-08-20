@@ -11,6 +11,9 @@ public enum LangKey {
     HOME_NO_HOMES_CREATED("home.no-homes-created"),
     HOME_CREATED("home.created"),
     HOME_REMOVED("home.removed"),
+    ITEM_LOCK_PLACED("item-lock.placed"),
+    ITEM_LOCK_REMOVED("item-lock.removed"),
+    ITEM_LOCK_CANNOT_DROP_ITEM("item-lock.cannot-drop-item"),
     VANISH_ANNOUNCE("vanish.announce-to-mods"),
     VANISH_BACK_VISIBLE_ANNOUNCE("vanish.back-visible"),
     VANISH_ENABLED("vanish.enabled.for-self"),
@@ -23,7 +26,11 @@ public enum LangKey {
     VANISH_ALREADY_VANISHED("vanish.already-vanished.self"),
     VANISH_ALREADY_VANISHED_OTHER("vanish.already-vanished.other"),
     VANISH_ALREADY_VISIBLE("vanish.already-visible.self"),
-    VANISH_OTHER_ALREADY_VISIBLE("vanish.already-visible.other");
+    VANISH_OTHER_ALREADY_VISIBLE("vanish.already-visible.other"),
+    FARMING_CROP_NOT_READY_YET("farming.crop-not-ready-yet"),
+    FARMING_CANNOT_BREAK_FARMLAND("farming.cannot-break-farmland"),
+    INCORRECT_TOOL("incorrect-tool");
+
 
     private final String path;
 

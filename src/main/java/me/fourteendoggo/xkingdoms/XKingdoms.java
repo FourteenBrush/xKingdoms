@@ -1,10 +1,7 @@
 package me.fourteendoggo.xkingdoms;
 
 import co.aikar.commands.BukkitCommandManager;
-import me.fourteendoggo.xkingdoms.commands.HomeCommand;
-import me.fourteendoggo.xkingdoms.commands.ReloadCommand;
-import me.fourteendoggo.xkingdoms.commands.SkillCommand;
-import me.fourteendoggo.xkingdoms.commands.VanishCommand;
+import me.fourteendoggo.xkingdoms.commands.*;
 import me.fourteendoggo.xkingdoms.lang.Lang;
 import me.fourteendoggo.xkingdoms.lang.LangKey;
 import me.fourteendoggo.xkingdoms.listeners.PlayerListener;
@@ -51,9 +48,9 @@ public class XKingdoms extends JavaPlugin {
         }
         getLogger().info("Using a " + storageType.getDescription());
 
-        lang = new Lang(this);
         userManager = new UserManager(storage);
         reloadableComponents = new HashSet<>();
+        lang = new Lang(this);
 
         reloadableComponents.add(lang);
         skillsManager = new SkillsManager();
@@ -76,7 +73,7 @@ public class XKingdoms extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        userManager.saveAll();
+        userManager.saveAllSync();
         storage.disconnect();
         getLogger().info("xKingdoms has been disabled");
     }
@@ -91,23 +88,26 @@ public class XKingdoms extends JavaPlugin {
     private void registerCommands() {
         BukkitCommandManager manager = new BukkitCommandManager(this);
         manager.enableUnstableAPI("help");
-        manager.registerCommand(new HomeCommand(this));
-        manager.registerCommand(new VanishCommand(this));
-        manager.registerCommand(new ReloadCommand(this));
-        manager.registerCommand(new SkillCommand());
 
         manager.getCommandCompletions().registerCompletion("@homes", context -> {
-            // TODO this is null for some reason
             KingdomPlayer kPlayer = userManager.getUser(context.getPlayer().getUniqueId());
             return kPlayer.getData().getHomes().keySet();
         });
+        manager.getCommandContexts().registerContext(KingdomPlayer.class, context ->
+                userManager.getUser(context.getPlayer().getUniqueId()));
+
+        manager.registerCommand(new HomeCommand(this));
+        manager.registerCommand(new VanishCommand(this));
+        manager.registerCommand(new ReloadCommand(this));
+        manager.registerCommand(new ItemLockCommand(this));
+        manager.registerCommand(new SkillCommand());
     }
 
     public String getLang(LangKey key) {
         return lang.getMessage(key);
     }
 
-    public String getLang(LangKey key, String... placeholders) {
+    public String getLang(LangKey key, Object... placeholders) {
         return lang.getMessage(key, placeholders);
     }
 

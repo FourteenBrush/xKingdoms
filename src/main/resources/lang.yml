@@ -1,4 +1,4 @@
-# if any value isn"t set, the default values from within the jar will be used
+# if any value isn't set, the default values from within the jar will be used
 # to use placeholders, use %s
 reload-finished: "#83c916Successfully reloaded xKingdoms!"
 join-message:
@@ -13,6 +13,10 @@ home:
   no-homes-created: "&cYou haven't created any homes!"
   created: "#83c916You have created a new home, %s"
   removed: "#83c916Successfully deleted home"
+item-lock:
+  placed: "&6You placed an itemlock on this item so you cannot longer drop it"
+  removed: "&6You removed the item lock from this item"
+  cannot-drop-item: "&cYou cannot drop this item because it has an itemlock on it, run /itemlock again to remove it!"
 vanish:
   announce-to-mods: "&e%s has vanished. Poof"
   back-visible: "&e%s has become visible"
@@ -31,3 +35,7 @@ vanish:
   already-visible:
     self: "&cYou are already visible!"
     other: "&cThat player is already visible!"
+farming:
+  crop-not-ready-yet: "&cThat crop is not ready yet! (age %s/%s)"
+  cannot-break-farmland: "&c# &7You cannot break the farmland!"
+incorrect-tool: "&cPlease use the correct tool for breaking this!"

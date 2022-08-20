@@ -35,7 +35,7 @@ public class Lang implements Reloadable { // TODO: Map<String, MessageFormat>?
             String path = key.getPath();
             String message;
 
-            if (config.isSet(path)) { // TODO: config.get(path, null) != null?
+            if (config.isSet(path)) {
                 message = config.getString(path);
             } else {
                 message = config.getDefaults().getString(path);
@@ -54,7 +54,7 @@ public class Lang implements Reloadable { // TODO: Map<String, MessageFormat>?
         return cachedMessages.get(key.getPath()); // already colored
     }
 
-    public String getMessage(LangKey key, String... placeholders) {
-        return getMessage(key).formatted((Object[]) placeholders); // tf java how am I supposed to know
+    public String getMessage(LangKey key, Object... placeholders) {
+        return getMessage(key).formatted(placeholders);
     }
 }

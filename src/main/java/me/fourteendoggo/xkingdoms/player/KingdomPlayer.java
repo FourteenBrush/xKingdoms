@@ -39,6 +39,7 @@ public class KingdomPlayer {
     }
 
     public void invalidate() {
+        skillProgressBar.removeAll();
         playerGetter.clear();
     }
 

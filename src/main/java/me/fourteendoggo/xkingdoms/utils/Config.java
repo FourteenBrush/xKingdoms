@@ -39,7 +39,10 @@ public class Config implements Reloadable {
 
         if (copyDefaults) {
             InputStream resource = plugin.getResource(fileName);
-            if (resource == null) return;
+            if (resource == null) {
+                plugin.getLogger().warning("Cannot load the defaults for a config file because the defaults don't exist");
+                return;
+            }
             Reader reader = new InputStreamReader(resource, StandardCharsets.UTF_8);
             configuration.setDefaults(YamlConfiguration.loadConfiguration(reader));
             configuration.options().copyDefaults(true);

@@ -1,7 +1,7 @@
 storage:
   # Some things will be ignored if not applicable for the database type
-  # Allowed values: H2 , MySQL or JSON
-  type: JSON
+  # Allowed values: SQLITE, MySQL or JSON
+  type: SQLITE
   host: localhost
   port: 3306
   name: xkingdoms

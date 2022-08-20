@@ -23,9 +23,8 @@ public class HomeCommand extends BaseCommand {
 
     @CommandAlias("sethome")
     @Description("Creates a home at your current location")
-    private void onSetHome(Player player, String name) {
+    private void onSetHome(Player player, KingdomPlayer kPlayer, String name) {
         int homesLimit = player.hasPermission(Constants.MODERATOR_PERMISSION_STRING) ? 5 : 2;
-        KingdomPlayer kPlayer = plugin.getUserManager().getUser(player.getUniqueId());
         PlayerData data = kPlayer.getData();
 
         if (data.getHomes().size() >= homesLimit) {
@@ -36,8 +35,7 @@ public class HomeCommand extends BaseCommand {
             player.sendMessage(plugin.getLang(LangKey.HOME_ALREADY_EXISTS));
             return;
         }
-        Home home = new Home(name, player.getUniqueId(), player.getLocation());
-        data.addHome(home);
+        data.addHome(new Home(name, player.getUniqueId(), player.getLocation()));
         player.sendMessage(plugin.getLang(LangKey.HOME_CREATED, name));
     }
 
@@ -47,7 +45,7 @@ public class HomeCommand extends BaseCommand {
     private void onDeleteHome(Player player, @Values("@homes") String name) {
         KingdomPlayer kPlayer = plugin.getUserManager().getUser(player.getUniqueId());
         PlayerData data = kPlayer.getData();
-
+        // TODO: implement removal from the persistent storage
         data.removeHome(name);
         player.sendMessage(plugin.getLang(LangKey.HOME_REMOVED));
     }
@@ -65,12 +63,15 @@ public class HomeCommand extends BaseCommand {
         }
         StringBuilder builder = new StringBuilder();
         builder.append("&e------------ &7[&eHomes&7] &e------------\n&7Below is a list of all your homes:");
-        data.getHomes().values().forEach(home -> builder.append("\n&6  %s: [x: %s, y: %s, z: %s]".formatted(
-                home.name(),
-                home.location().getBlockX(),
-                home.location().getBlockY(),
-                home.location().getBlockZ()
-        )));
+
+        for (Home home : data.getHomes().values()) {
+            builder.append("\n&6  %s: [x: %s, y: %s, z: %s]".formatted(
+                    home.name(),
+                    home.location().getBlockX(),
+                    home.location().getBlockY(),
+                    home.location().getBlockZ()
+            ));
+        }
         player.sendMessage(Utils.colorize(builder.toString()));
     }
 }

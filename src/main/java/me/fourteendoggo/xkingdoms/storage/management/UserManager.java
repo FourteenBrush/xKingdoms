@@ -41,7 +41,16 @@ public class UserManager {
     }
 
     public void saveAll() {
-        userMap.values().forEach(storage::savePlayerSync);
+        for (KingdomPlayer player : userMap.values()) {
+            storage.savePlayer(player).thenRun(player::invalidate); // the plugins jar might be replacing
+        }
+    }
+
+    public void saveAllSync() {
+        for (KingdomPlayer player : userMap.values()) {
+            storage.savePlayerSync(player);
+            player.invalidate();
+        }
     }
 
     private static class DelayedRemovalCache<K, V> {
