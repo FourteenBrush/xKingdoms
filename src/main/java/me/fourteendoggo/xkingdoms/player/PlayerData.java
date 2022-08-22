@@ -1,5 +1,6 @@
 package me.fourteendoggo.xkingdoms.player;
 
+import me.fourteendoggo.xkingdoms.chat.ChatChannel;
 import me.fourteendoggo.xkingdoms.skill.SkillProgress;
 import me.fourteendoggo.xkingdoms.skill.SkillType;
 import me.fourteendoggo.xkingdoms.utils.Home;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 public class PlayerData {
     private int level;
+    private ChatChannel joinedChannel;
     private final Map<String, Home> homesMap = new HashMap<>();
     private final Map<SkillType, SkillProgress> skillsMap = new EnumMap<>(SkillType.class);
 
@@ -25,6 +27,10 @@ public class PlayerData {
 
     public void setLevel(int level) {
         this.level = level;
+    }
+
+    public void setJoinedChannel(ChatChannel joinedChannel) {
+        this.joinedChannel = joinedChannel;
     }
 
     public void addHome(Home home) {

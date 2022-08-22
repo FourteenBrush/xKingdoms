@@ -21,9 +21,10 @@ public class KingdomPlayer {
     public KingdomPlayer(UUID uuid, PlayerData playerData) {
         this.uuid = uuid;
         this.playerData = playerData;
-        skillProgressBar = Bukkit.createBossBar("Progress: ", BarColor.PINK, BarStyle.SOLID);
-        skillProgressBar.removeAll();
+        this.skillProgressBar = Bukkit.createBossBar("Progress: ", BarColor.PINK, BarStyle.SOLID);
         this.playerGetter = new LazyValue<>(() -> Bukkit.getPlayer(uuid));
+
+        skillProgressBar.removeAll();
     }
 
     public UUID getUniqueId() {
