@@ -12,9 +12,9 @@ default: true
 vanish:
   # apply night vision when a player vanishes
   apply-night-vision: true
-  # do not remove night vision when unvanishing if the player already got it before vanishing
-  no-night-vision-removal: true
   # will vanished players be able to see other vanished players?
-  players-will-see-each-other: true
+  see-other-vanished-players: true
   # when doing a fake quit or join, send the quit or join message to yourself too?
   send-message-to-self: true
+  # then color of the bossbar which shows up when vanishing
+  bossbar-color: purple

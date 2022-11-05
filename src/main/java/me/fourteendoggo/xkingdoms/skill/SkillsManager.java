@@ -31,6 +31,7 @@ public class SkillsManager {
         int requiredXP = skill.getRequiredXp(level);
 
         if (xp >= requiredXP) {
+            // level up
             progress.incrementLevel();
             progress.setXp(xp - requiredXP);
             player.levelUpSkill(type, level + 1);

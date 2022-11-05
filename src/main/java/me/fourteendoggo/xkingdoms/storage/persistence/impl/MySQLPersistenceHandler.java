@@ -4,6 +4,7 @@ import me.fourteendoggo.xkingdoms.XKingdoms;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.storage.persistence.Database;
 import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
+import me.fourteendoggo.xkingdoms.utils.Home;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.UUID;
@@ -33,6 +34,11 @@ public class MySQLPersistenceHandler extends Database implements PersistenceHand
     @Override
     public KingdomPlayer loadPlayer(UUID id) {
         return null;
+    }
+
+    @Override
+    public void deleteHome(Home home) {
+
     }
 
     @Override
