@@ -33,12 +33,20 @@ public class PlayerData {
         this.joinedChannel = joinedChannel;
     }
 
-    public boolean addHome(Home home) {
-        return homesMap.putIfAbsent(home.name(), home) != null;
+    public void addHome(Home home) {
+        homesMap.put(home.name(), home);
     }
 
-    public Home removeHome(String name) {
-        return homesMap.remove(name);
+    public Home getHome(String name) {
+        return homesMap.get(name);
+    }
+
+    public boolean hasHome(String name) {
+        return homesMap.containsKey(name);
+    }
+
+    public void removeHome(String name) {
+        homesMap.remove(name);
     }
 
     @UnmodifiableView

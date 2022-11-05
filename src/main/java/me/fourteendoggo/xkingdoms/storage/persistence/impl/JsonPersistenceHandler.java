@@ -42,7 +42,7 @@ public class JsonPersistenceHandler implements PersistenceHandler {
     public KingdomPlayer loadPlayer(UUID id) {
         File playerFile = getPlayerDataFile(id);
         if (!playerFile.exists()) {
-            return new KingdomPlayer(id);
+            return KingdomPlayer.newFirstJoinedPlayer(id);
         }
         try {
             String json = Files.readString(playerFile.toPath());
@@ -50,11 +50,6 @@ public class JsonPersistenceHandler implements PersistenceHandler {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void deleteHome(Home home) {
-
     }
 
     @Override

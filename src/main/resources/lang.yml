@@ -13,12 +13,10 @@ home:
   no-homes-created: "&cYou haven't created any homes!"
   created: "#83c916You have created a new home, %s"
   removed: "#83c916Successfully deleted home"
-  not-found: "&cYou don't have a home with that name!"
-  teleported: "#83c916Successfully teleported to home %s"
 item-lock:
-  placed: "&6You placed an item lock on this item so you cannot longer drop it"
+  placed: "&6You placed an itemlock on this item so you cannot longer drop it"
   removed: "&6You removed the item lock from this item"
-  cannot-drop-item: "&cYou cannot drop this item because it has an itemlock on it"
+  cannot-drop-item: "&cYou cannot drop this item because it has an itemlock on it, run /itemlock again to remove it!"
 vanish:
   announce-to-mods: "&e%s has vanished. Poof"
   back-visible: "&e%s has become visible"

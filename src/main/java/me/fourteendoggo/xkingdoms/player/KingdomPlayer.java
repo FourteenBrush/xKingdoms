@@ -16,11 +16,7 @@ public class KingdomPlayer {
     private final UUID uuid;
     private final PlayerData playerData;
     private final transient BossBar skillProgressBar;
-    private final transient LazyValue<Player, ?> playerGetter;
-
-    public KingdomPlayer(UUID uuid) {
-        this(uuid, new PlayerData(0));
-    }
+    private final transient LazyValue<Player> playerGetter;
 
     public KingdomPlayer(UUID uuid, PlayerData playerData) {
         this.uuid = uuid;
@@ -59,5 +55,9 @@ public class KingdomPlayer {
         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
 
         player.sendMessage(ChatColor.DARK_PURPLE + "Congratulations! You reached level %s in %s".formatted(reachedLevel, type.getDisplayName()));
+    }
+
+    public static KingdomPlayer newFirstJoinedPlayer(UUID id) {
+        return new KingdomPlayer(id, new PlayerData(0));
     }
 }

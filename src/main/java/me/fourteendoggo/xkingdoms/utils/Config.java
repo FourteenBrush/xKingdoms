@@ -25,22 +25,28 @@ import java.util.logging.Level;
 
 public class Config implements Reloadable {
     private final XKingdoms plugin;
-    private final String fileName;
-    private final boolean copyDefaults;
     private final File file;
     private FileConfiguration configuration;
     private boolean saveRequired;
 
     public Config(XKingdoms plugin, String fileName, boolean copyDefaults) {
         this.plugin = plugin;
-        this.fileName = fileName;
-        this.copyDefaults = copyDefaults;
         this.file = new File(plugin.getDataFolder(), fileName);
-
         if (!file.exists()) {
             plugin.saveResource(fileName, false);
         }
-        reload(); // saveRequired is false so we are fine
+        reload();
+
+        if (copyDefaults) {
+            InputStream resource = plugin.getResource(fileName);
+            if (resource == null) {
+                plugin.getLogger().warning("Cannot load the defaults for a config file because the defaults don't exist");
+                return;
+            }
+            Reader reader = new InputStreamReader(resource, StandardCharsets.UTF_8);
+            configuration.setDefaults(YamlConfiguration.loadConfiguration(reader));
+            configuration.options().copyDefaults(true);
+        }
     }
 
     @Override
@@ -49,18 +55,6 @@ public class Config implements Reloadable {
             save();
         }
         configuration = YamlConfiguration.loadConfiguration(file);
-
-        if (copyDefaults) {
-            InputStream defaults = plugin.getResource(fileName);
-            if (defaults == null) {
-                plugin.getLogger().warning("Cannot load the defaults for a config file because the defaults don't exist");
-                return;
-            }
-
-            Reader reader = new InputStreamReader(defaults, StandardCharsets.UTF_8);
-            configuration.setDefaults(YamlConfiguration.loadConfiguration(reader));
-            configuration.options().copyDefaults(true);
-        }
     }
 
     public void save() {

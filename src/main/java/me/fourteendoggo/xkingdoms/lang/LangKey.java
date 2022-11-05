@@ -11,8 +11,6 @@ public enum LangKey {
     HOME_NO_HOMES_CREATED("home.no-homes-created"),
     HOME_CREATED("home.created"),
     HOME_REMOVED("home.removed"),
-    HOME_NOT_FOUND("home.not-found"),
-    HOME_TELEPORTED("home.teleported"),
     ITEM_LOCK_PLACED("item-lock.placed"),
     ITEM_LOCK_REMOVED("item-lock.removed"),
     ITEM_LOCK_CANNOT_DROP_ITEM("item-lock.cannot-drop-item"),

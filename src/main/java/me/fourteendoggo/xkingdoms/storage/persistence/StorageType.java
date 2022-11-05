@@ -35,6 +35,6 @@ public enum StorageType {
                 return type;
             }
         }
-        return SQLITE; // most stable option in my eyes
+        return SQLITE; // most stable and fast option in my eyes
     }
 }

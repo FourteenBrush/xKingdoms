@@ -1,7 +1,6 @@
 package me.fourteendoggo.xkingdoms.storage.persistence;
 
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
-import me.fourteendoggo.xkingdoms.utils.Home;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -45,7 +44,7 @@ public class Storage {
     }
 
     @Nullable
-    public KingdomPlayer loadPlayerBlocking(UUID id) {
+    public KingdomPlayer loadPlayerSync(UUID id) {
         try {
             KingdomPlayer player = persistenceHandler.loadPlayer(id);
             logger.info("Loaded the player with uuid " + id);
@@ -56,7 +55,7 @@ public class Storage {
         return null;
     }
 
-    public void loadPlayerBlocking(KingdomPlayer player) {
+    public void savePlayerSync(KingdomPlayer player) {
         try {
             persistenceHandler.savePlayer(player);
             logger.info("Saved player " + player.getPlayer().getName());
@@ -71,12 +70,6 @@ public class Storage {
         return makeFuture(() -> persistenceHandler.loadPlayer(id),
                 "Loaded the player with uuid " + id,
                 "Failed to load the player with uuid " + id);
-    }
-
-    public CompletableFuture<Void> deleteHome(Home home) {
-        return makeFuture(() -> persistenceHandler.deleteHome(home),
-                "Deleted home " + home.name() + " for " + home.owner(),
-                "Failed to delete home " + home.name() + " for " + home.owner());
     }
 
     public CompletableFuture<Void> savePlayer(KingdomPlayer player) {

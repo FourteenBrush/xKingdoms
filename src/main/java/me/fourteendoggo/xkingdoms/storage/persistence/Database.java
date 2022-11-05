@@ -2,7 +2,6 @@ package me.fourteendoggo.xkingdoms.storage.persistence;
 
 import com.zaxxer.hikari.HikariDataSource;
 import me.fourteendoggo.xkingdoms.utils.LazyValue;
-import me.fourteendoggo.xkingdoms.utils.ThrowingSupplier;
 import me.fourteendoggo.xkingdoms.utils.Utils;
 
 import java.io.IOException;
@@ -63,7 +62,7 @@ public abstract class Database {
         return true;
     }
 
-    protected void executeAll(String[] queries) {
+    protected void executeAll(String... queries) {
         try (lazyConnection) {
             for (String query : queries) {
                 executeRawQuery(lazyConnection.get(), query);
@@ -113,8 +112,18 @@ public abstract class Database {
     }
 
     private void fillPlaceholders(PreparedStatement ps, Object... placeholders) throws SQLException {
-        for (int i = 0; i < placeholders.length; i++) {
-            ps.setObject(i + 1, placeholders[i]);
+        for (int i = 1; i < placeholders.length + 1; i++) {
+            switch (placeholders[i - 1]) {
+                case String s -> ps.setString(i, s);
+                case Boolean b -> ps.setBoolean(i, b);
+                case Byte b -> ps.setByte(i, b);
+                case Short s -> ps.setShort(i, s);
+                case Integer integer -> ps.setInt(i, integer);
+                case Long l -> ps.setLong(i, l);
+                case Float f -> ps.setFloat(i, f);
+                case UUID u -> ps.setBytes(i, uuidToBytes(u));
+                default -> throw new IllegalStateException("the programmer was too lazy to cover all possible outcomes");
+            }
         }
     }
 
@@ -136,10 +145,10 @@ public abstract class Database {
 
     public abstract void connect();
 
-    protected static class LazyConnection extends LazyValue<Connection, SQLException> implements AutoCloseable {
+    protected static class LazyConnection extends LazyValue<Connection> implements AutoCloseable {
         private final boolean autoCloseable;
 
-        public LazyConnection(ThrowingSupplier<Connection, SQLException> connectionSupplier, boolean autoClosable) {
+        public LazyConnection(ThrowingSupplier<Connection> connectionSupplier, boolean autoClosable) {
             super(connectionSupplier);
             this.autoCloseable = autoClosable;
         }

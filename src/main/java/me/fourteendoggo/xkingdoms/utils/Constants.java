@@ -1,13 +1,15 @@
 package me.fourteendoggo.xkingdoms.utils;
 
+import org.intellij.lang.annotations.Language;
+
 public interface Constants {
     String ADMIN_PERMISSION_STRING = "xkingdoms.admin";
     String MODERATOR_PERMISSION_STRING = "xkingdoms.moderator";
-    String[] SQLITE_INITIAL_TABLE_SETUP = new String[] {
+    @Language("SQL") String[] SQLITE_INITIAL_TABLE_SETUP = new String[] {
             """
             CREATE TABLE IF NOT EXISTS players (
                 uuid BLOB,
-                level INTEGER NOT NULL,
+                level INTEGER,
                 PRIMARY KEY (uuid)
             );""",
             """
@@ -15,9 +17,9 @@ public interface Constants {
                 owner BLOB,
                 name VARCHAR(40),
                 world BLOB NOT NULL,
-                x DOUBLE NOT NULL,
-                y DOUBLE NOT NULL,
-                z DOUBLE NOT NULL,
+                x DOUBLE PRECISION NOT NULL,
+                y DOUBLE PRECISION NOT NULL,
+                z DOUBLE PRECISION NOT NULL,
                 yaw FLOAT NOT NULL,
                 pitch FLOAT NOT NULL,
                 PRIMARY KEY (owner, name),
