@@ -15,8 +15,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.Map;
@@ -26,9 +28,20 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
 
     public SqlitePersistenceHandler(XKingdoms plugin) {
         super(new LazyConnection(() -> {
-            File dbFile = Utils.getCreatedFile(new File(plugin.getDataFolder(), "database.db"));
+            File dbFile = new File(plugin.getDataFolder(), "database.db");
+            ensureFileExists(dbFile);
             return DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
         }, false));
+    }
+
+    private static void ensureFileExists(File file) {
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                Utils.sneakyThrow(e);
+            }
+        }
     }
 
     @Override
@@ -49,8 +62,15 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
 
                 return new KingdomPlayer(id, playerData);
             }
-            return KingdomPlayer.newFirstJoinedPlayer(id);
+            return new KingdomPlayer(id);
         }, id);
+    }
+
+    @Override
+    public void deleteHome(Home home) {
+        withConnection("DELETE FROM homes WHERE name=? AND owner=?;", (conn, ps) -> {
+            ps.executeUpdate();
+        }, home.name(), uuidToBytes(home.owner()));
     }
 
     private void insertHomes(Connection conn, PlayerData playerData, UUID id) {
@@ -71,7 +91,7 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
 
                 playerData.addHome(new Home(name, id, location));
             }
-        }, id);
+        }, (Object)uuidToBytes(id));
     }
 
     private void insertSkills(Connection conn, PlayerData playerData, UUID id) {
@@ -91,6 +111,7 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
         String sql = "INSERT INTO players(uuid,level) VALUES (?,?) ON CONFLICT DO UPDATE SET level=?;";
         PlayerData playerData = player.getData();
         int level = playerData.getLevel();
+
         withConnection(sql, (conn, ps) -> {
             ps.executeUpdate();
             saveHomes(conn, playerData.getHomes().values());
@@ -104,7 +125,10 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
             int count = 0;
             for (Home home : homes) {
                 Location loc = home.location();
-                assert loc.getWorld() != null;
+                if (!loc.isWorldLoaded()) {
+                    // world files could've been deleted, so this home must've been saved before
+                    continue;
+                }
 
                 ps.setBytes(1, uuidToBytes(home.owner()));
                 ps.setString(2, home.name());
@@ -122,6 +146,18 @@ public class SqlitePersistenceHandler extends Database implements PersistenceHan
                 if (count % 10 == 0 || count == homes.size()) {
                     ps.executeBatch();
                 }
+            }
+        });
+    }
+
+    private void deleteHome(Connection conn, Home home) {
+        byte[] uuidBytes = uuidToBytes(home.owner());
+        withConnection("DELETE FROM homes WHERE owner=? AND name=?;", conn,
+                PreparedStatement::executeUpdate, uuidBytes, home.name());
+        withConnection("SELECT * FROM homes WHERE owner=?;", conn, ps -> {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                System.out.println("home found after deleting: " + rs.getString("name"));
             }
         });
     }

@@ -2,17 +2,27 @@ package me.fourteendoggo.xkingdoms.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Description;
-import co.aikar.commands.annotation.Values;
 import me.fourteendoggo.xkingdoms.XKingdoms;
+import me.fourteendoggo.xkingdoms.inventory.GuiItem;
+import me.fourteendoggo.xkingdoms.inventory.InventoryGui;
+import me.fourteendoggo.xkingdoms.inventory.ItemBuilder;
 import me.fourteendoggo.xkingdoms.lang.LangKey;
 import me.fourteendoggo.xkingdoms.player.KingdomPlayer;
 import me.fourteendoggo.xkingdoms.player.PlayerData;
 import me.fourteendoggo.xkingdoms.utils.Constants;
 import me.fourteendoggo.xkingdoms.utils.Home;
-import me.fourteendoggo.xkingdoms.utils.Utils;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class HomeCommand extends BaseCommand {
     private final XKingdoms plugin;
@@ -31,47 +41,69 @@ public class HomeCommand extends BaseCommand {
             player.sendMessage(plugin.getLang(LangKey.HOME_LIMIT_REACHED));
             return;
         }
-        if (data.hasHome(name)) {
+        if (!data.addHome(new Home(name, player.getUniqueId(), player.getLocation()))) {
             player.sendMessage(plugin.getLang(LangKey.HOME_ALREADY_EXISTS));
             return;
         }
-        data.addHome(new Home(name, player.getUniqueId(), player.getLocation()));
+
         player.sendMessage(plugin.getLang(LangKey.HOME_CREATED, name));
     }
 
     @CommandAlias("delhome")
-    @CommandCompletion("@homes")
-    @Description("Deletes the home with the entered name")
-    private void onDeleteHome(Player player, @Values("@homes") String name) {
-        KingdomPlayer kPlayer = plugin.getUserManager().getUser(player.getUniqueId());
-        PlayerData data = kPlayer.getData();
-        // TODO: implement removal from the persistent storage
-        data.removeHome(name);
-        player.sendMessage(plugin.getLang(LangKey.HOME_REMOVED));
+    @Description("Deletes the given home")
+    private void onDeleteHome(Player player, Home home) {
+        if (home == null) {
+            player.sendMessage(plugin.getLang(LangKey.HOME_NOT_FOUND));
+        } else {
+            CompletableFuture<Void> future = plugin.getStorage().deleteHome(home);
+            future.thenRun(() -> player.sendMessage(plugin.getLang(LangKey.HOME_REMOVED)));
+        }
     }
 
-    // TODO maybe a gui mode, maybe toggleable?
     @CommandAlias("homes")
     @Description("Shows all the homes that you have")
-    private void onHomesList(Player player) {
-        KingdomPlayer kPlayer = plugin.getUserManager().getUser(player.getUniqueId());
-        PlayerData data = kPlayer.getData();
+    private void onHomesList(Player sender) {
+        KingdomPlayer kPlayer = plugin.getUserManager().getUser(sender.getUniqueId());
+        PlayerData playerdata = kPlayer.getData();
 
-        if (data.getHomes().isEmpty()) {
-            player.sendMessage(plugin.getLang(LangKey.HOME_NO_HOMES_CREATED));
+        if (playerdata.getHomes().isEmpty()) {
+            sender.sendMessage(plugin.getLang(LangKey.HOME_NO_HOMES_CREATED));
             return;
         }
-        StringBuilder builder = new StringBuilder();
-        builder.append("&e------------ &7[&eHomes&7] &e------------\n&7Below is a list of all your homes:");
 
-        for (Home home : data.getHomes().values()) {
-            builder.append("\n&6  %s: [x: %s, y: %s, z: %s]".formatted(
-                    home.name(),
-                    home.location().getBlockX(),
-                    home.location().getBlockY(),
-                    home.location().getBlockZ()
-            ));
+        InventoryGui gui = new InventoryGui("#F28C28Homes", 5);
+        plugin.getInventoryManager().registerInventory(gui);
+
+        int slot = 0;
+        for (Home home : playerdata.getHomes().values()) {
+            Material material = Material.DIAMOND;
+            Consumer<InventoryClickEvent> clickEventConsumer = null;
+            List<String> lore = new ArrayList<>(Arrays.asList(
+                    "&6x: %s, y: %s, z: %s".formatted(
+                            home.location().getBlockX(),
+                            home.location().getBlockY(),
+                            home.location().getBlockZ()),
+                    ""));
+
+            if (home.location().isWorldLoaded()) {
+                lore.add("&7Click to teleport to this home");
+                clickEventConsumer = event -> {
+                    sender.teleport(home.location());
+                    sender.sendMessage(plugin.getLang(LangKey.HOME_TELEPORTED, home.name()));
+                };
+            } else {
+                material = Material.BARRIER;
+                lore.add("&cCannot teleport to a home in an unloaded world");
+            }
+
+            ItemStack item = new ItemBuilder(material)
+                    .setDisplayName(ChatColor.GOLD + home.name())
+                    .setLore(lore)
+                    .build();
+
+            gui.setItem(slot++, new GuiItem(item, clickEventConsumer));
         }
-        player.sendMessage(Utils.colorize(builder.toString()));
+
+        sender.openInventory(gui.getInventory());
     }
 }

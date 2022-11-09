@@ -1,7 +1,13 @@
 package me.fourteendoggo.xkingdoms;
 
 import co.aikar.commands.BukkitCommandManager;
-import me.fourteendoggo.xkingdoms.commands.*;
+import me.fourteendoggo.xkingdoms.commands.HomeCommand;
+import me.fourteendoggo.xkingdoms.commands.ItemLockCommand;
+import me.fourteendoggo.xkingdoms.commands.ReloadCommand;
+import me.fourteendoggo.xkingdoms.commands.SkillCommand;
+import me.fourteendoggo.xkingdoms.commands.vanish.NewVanishCommand;
+import me.fourteendoggo.xkingdoms.commands.vanish.VanishManager;
+import me.fourteendoggo.xkingdoms.inventory.InventoryManager;
 import me.fourteendoggo.xkingdoms.lang.Lang;
 import me.fourteendoggo.xkingdoms.lang.LangKey;
 import me.fourteendoggo.xkingdoms.listeners.PlayerListener;
@@ -12,22 +18,25 @@ import me.fourteendoggo.xkingdoms.storage.management.UserManager;
 import me.fourteendoggo.xkingdoms.storage.persistence.PersistenceHandler;
 import me.fourteendoggo.xkingdoms.storage.persistence.Storage;
 import me.fourteendoggo.xkingdoms.storage.persistence.StorageType;
+import me.fourteendoggo.xkingdoms.utils.Home;
 import me.fourteendoggo.xkingdoms.utils.Reloadable;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
 
 public class XKingdoms extends JavaPlugin {
     private boolean reloading;
     private Lang lang;
     private Storage storage;
     private UserManager userManager;
-    private Set<Reloadable> reloadableComponents;
-    private SkillsManager skillsManager;
+    // A set of components that need to be reloaded when calling /xkingdoms reload
+    private List<Reloadable> reloadableComponents;
+    private VanishManager vanishManager;
+    private InventoryManager inventoryManager;
 
     @Override
     public void onLoad() {
@@ -35,6 +44,7 @@ public class XKingdoms extends JavaPlugin {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onEnable() {
         saveDefaultConfig();
 
@@ -43,28 +53,54 @@ public class XKingdoms extends JavaPlugin {
         storage = new Storage(persistenceHandler, getLogger());
 
         if (!storage.connect()) {
-            getServer().getPluginManager().disablePlugin(this);
+            // storage will have logged the error, we just need to shut down
+            Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
         getLogger().info("Using a " + storageType.getDescription());
 
         userManager = new UserManager(storage);
-        reloadableComponents = new HashSet<>();
         lang = new Lang(this);
+        vanishManager = new VanishManager(this);
+        inventoryManager = new InventoryManager(this);
 
-        reloadableComponents.add(lang);
-        skillsManager = new SkillsManager();
+        reloadableComponents = Arrays.asList(
+                lang, vanishManager
+        );
 
-        registerCommands();
+        BukkitCommandManager commandManager = new BukkitCommandManager(this);
+        commandManager.enableUnstableAPI("help");
 
-        PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new PlayerListener(this), this);
-        pm.registerEvents(new SkillListener(this), this);
+        commandManager.getCommandContexts().registerContext(Home.class, resolver -> {
+            String homeName = resolver.popFirstArg();
+            Player player = resolver.getPlayer();
+            KingdomPlayer kingdomPlayer = userManager.getUser(player.getUniqueId());
+            return kingdomPlayer.getData().removeHome(homeName);
+        });
+
+        commandManager.getCommandCompletions().registerCompletion("@homes", handler -> {
+            KingdomPlayer kPlayer = userManager.getUser(handler.getPlayer().getUniqueId());
+            return kPlayer.getData().getHomes().keySet();
+        });
+        commandManager.getCommandContexts().registerContext(KingdomPlayer.class, resolver ->
+                userManager.getUser(resolver.getPlayer().getUniqueId()));
+
+        commandManager.registerCommand(new HomeCommand(this));
+        commandManager.registerCommand(new ItemLockCommand(this));
+        commandManager.registerCommand(new ReloadCommand(this));
+        commandManager.registerCommand(new SkillCommand());
+        commandManager.registerCommand(new NewVanishCommand(this, vanishManager));
+
+        PluginManager pm = Bukkit.getPluginManager();
+        pm.registerEvents(new PlayerListener(this, vanishManager), this);
+        pm.registerEvents(new SkillListener(this, new SkillsManager()), this);
 
         if (reloading && !Bukkit.getOnlinePlayers().isEmpty()) {
-            getLogger().info("Loading players which are still on the server...");
+            getLogger().info("Reload detected, reloading players...");
+            // renew states in case of the plugin jar being renewed
             for (Player player : Bukkit.getOnlinePlayers()) {
                 userManager.loadIfAbsent(player.getUniqueId());
+                vanishManager.vanishIfFlagged(player);
             }
         }
 
@@ -73,7 +109,8 @@ public class XKingdoms extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        userManager.saveAllSync();
+        vanishManager.destroyState();
+        userManager.saveAllBlocking();
         storage.disconnect();
         getLogger().info("xKingdoms has been disabled");
     }
@@ -82,25 +119,6 @@ public class XKingdoms extends JavaPlugin {
         reloadConfig();
         reloadableComponents.forEach(Reloadable::reload);
         getLogger().info("xKingdoms has been reloaded");
-    }
-
-    @SuppressWarnings("deprecation")
-    private void registerCommands() {
-        BukkitCommandManager manager = new BukkitCommandManager(this);
-        manager.enableUnstableAPI("help");
-
-        manager.getCommandCompletions().registerCompletion("@homes", context -> {
-            KingdomPlayer kPlayer = userManager.getUser(context.getPlayer().getUniqueId());
-            return kPlayer.getData().getHomes().keySet();
-        });
-        manager.getCommandContexts().registerContext(KingdomPlayer.class, context ->
-                userManager.getUser(context.getPlayer().getUniqueId()));
-
-        manager.registerCommand(new HomeCommand(this));
-        manager.registerCommand(new VanishCommand(this));
-        manager.registerCommand(new ReloadCommand(this));
-        manager.registerCommand(new ItemLockCommand(this));
-        manager.registerCommand(new SkillCommand());
     }
 
     public String getLang(LangKey key) {
@@ -119,7 +137,7 @@ public class XKingdoms extends JavaPlugin {
         return userManager;
     }
 
-    public SkillsManager getSkillsManager() {
-        return skillsManager;
+    public InventoryManager getInventoryManager() {
+        return inventoryManager;
     }
 }

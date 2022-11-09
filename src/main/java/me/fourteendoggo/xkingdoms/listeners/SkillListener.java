@@ -38,9 +38,9 @@ public class SkillListener implements Listener {
     private final XKingdoms plugin;
     private final SkillsManager skillsManager;
 
-    public SkillListener(XKingdoms plugin) {
+    public SkillListener(XKingdoms plugin, SkillsManager skillsManager) {
         this.plugin = plugin;
-        this.skillsManager = plugin.getSkillsManager();
+        this.skillsManager = skillsManager;
     }
 
     @EventHandler
