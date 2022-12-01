@@ -35,7 +35,7 @@ public class UserManager {
 
     public void saveAllBlocking() {
         for (KingdomPlayer player : userMap.values()) {
-            storage.loadPlayerBlocking(player);
+            storage.savePlayerBlocking(player);
             player.invalidate();
         }
     }

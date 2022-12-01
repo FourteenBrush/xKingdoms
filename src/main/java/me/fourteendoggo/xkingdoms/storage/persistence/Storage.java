@@ -56,12 +56,12 @@ public class Storage {
         return null;
     }
 
-    public void loadPlayerBlocking(KingdomPlayer player) {
+    public void savePlayerBlocking(KingdomPlayer player) {
         try {
             persistenceHandler.savePlayer(player);
-            logger.info("Saved player " + player.getPlayer().getName());
+            logger.info("Loaded player " + player.getPlayer().getName());
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Failed to save player " + player.getPlayer().getName(), e);
+            logger.log(Level.SEVERE, "Failed to load player " + player.getPlayer().getName(), e);
         }
     }
 
