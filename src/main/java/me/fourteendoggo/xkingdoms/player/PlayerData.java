@@ -33,8 +33,9 @@ public class PlayerData {
         this.joinedChannel = joinedChannel;
     }
 
+    // TODO: computeIfAbsent semantics
     public boolean addHome(Home home) {
-        return homesMap.putIfAbsent(home.name(), home) != null;
+        return homesMap.putIfAbsent(home.getName(), home) != null;
     }
 
     public Home removeHome(String name) {
